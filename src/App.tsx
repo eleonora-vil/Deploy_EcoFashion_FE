@@ -17,7 +17,7 @@ import ApplySupplier from "./pages/apply/ApplySupplier";
 import MyApplications from "./pages/apply/MyApplications";
 import DesignerProfile from "./pages/designer/DesignerProfile";
 import DesignerDetailedProfile from "./pages/designer/DesignerDetailedProfile";
-import DesginerDashboared from "./pages/designer/DesignerDashboard";
+import DesignerDashboared from "./pages/designer/DesignerDashboard";
 import SupplierProfile from "./pages/supplier/SupplierProfile";
 import SupplierDetailedProfile from "./pages/supplier/SupplierDetailedProfile";
 import SupplierDashboard from "./pages/supplier/SupplierDashboard";
@@ -238,7 +238,7 @@ function App() {
           path="/designer/dashboard"
           element={
             <ProtectedRoute requiredRole={"designer"}>
-              <DesginerDashboared />
+              <DesignerDashboared />
             </ProtectedRoute>
           }
         />

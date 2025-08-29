@@ -98,6 +98,7 @@ import {
 import DesignService, {
   Design,
   DesignDraftDetails,
+  DesignMaterial,
   FullProductDetail,
   MaterialInStored,
   StoredMaterial,
@@ -118,13 +119,14 @@ import {
 } from "../../schemas/createProductSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ProductService from "../../services/api/productService";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 // import { useConfirm } from "material-ui-confirm";
 import InventoryTransactionsService, {
   ProductInventoryTransactions,
 } from "../../services/api/inventoryTransactionsService";
 import { useCartStore } from "../../store/cartStore";
 import { Description } from "@mui/icons-material";
+import { OrderModel, ordersService } from "../../services/api/ordersService";
 // Register chart components
 ChartJS.register(
   LineElement,
@@ -135,7 +137,7 @@ ChartJS.register(
   Legend
 );
 
-export default function DesignerDashBoard() {
+export default function DesignerDashboard() {
   window.scrollTo(0, 0);
   const stats = [
     {
@@ -168,7 +170,7 @@ export default function DesignerDashBoard() {
     },
   ];
 
-  const orders = [
+  const orders1 = [
     {
       orderId: "ORD-01",
       product: "Áo Khoác Denim Tái Chế",
@@ -186,10 +188,14 @@ export default function DesignerDashBoard() {
     },
   ];
 
+  //Get Designer Id
+  const { designerProfile } = useAuthStore();
+  //Order data
+  const [orders, setOrders] = useState<OrderModel[]>([]);
   //Design Data
   const [designs, setDesigns] = useState<Design[]>([]);
   //Material Data
-  const [storedMaterial, setStoredMaterial] = useState<StoredMaterial[]>([]);
+  const [storedMaterial, setStoredMaterial] = useState<MaterialInStored[]>([]);
   //Design Have Product Data
   const [designProduct, setDesignProduct] = useState<Design[]>([]);
   //Loading
@@ -218,16 +224,20 @@ export default function DesignerDashBoard() {
       setLoading(true);
       setPageLoading(true);
       setError(null);
+
+      //Get Order
+      const fetchedOrders = await ordersService.getOrdersBySeller(
+        designerProfile.designerId
+      );
+      setOrders(fetchedOrders || []);
+
       const designData = await DesignService.getAllDesignByDesigner(
         getDesignerId()
       );
       setDesigns(designData);
 
-      const materialData = await DesignService.getStoredMaterial(
-        getDesignerId()
-      );
+      const materialData = await DesignService.getStoredMaterial();
       setStoredMaterial(materialData);
-      console.log("Stored Material: ", materialData);
 
       const designProductData = await DesignService.getAllDesignProuct(
         getDesignerId()
@@ -248,10 +258,45 @@ export default function DesignerDashBoard() {
     }
   };
 
+  const reloadOrders = async () => {
+    const fetchedOrders = await ordersService.getOrdersBySeller(
+      designerProfile.designerId
+    );
+    setOrders(fetchedOrders || []);
+  };
+
   //Get Material Used In Design
   const currentDesign = designs.find(
     (design) => design.designId === selectedDesign?.designId
   );
+
+  const [selectedVariants, setSelectedVariants] = React.useState<number[]>([]);
+
+  // Chọn tất cả / bỏ chọn tất cả
+  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!currentDesign?.designsVariants) return;
+
+    if (event.target.checked) {
+      setSelectedVariants(currentDesign.designsVariants.map((v) => v.id));
+    } else {
+      setSelectedVariants([]);
+    }
+  };
+
+  // Chọn từng variant
+  const handleSelectVariant = (variantId: number, checked: boolean) => {
+    if (checked) {
+      setSelectedVariants((prev) => [...prev, variantId]);
+    } else {
+      setSelectedVariants((prev) => prev.filter((id) => id !== variantId));
+    }
+  };
+
+  // Kiểm tra tất cả đã chọn
+  const allSelected =
+    currentDesign?.designsVariants &&
+    selectedVariants.length === currentDesign.designsVariants.length &&
+    currentDesign.designsVariants.length > 0;
 
   const [productInfo, setProductInfo] = useState({
     designId: 0,
@@ -351,7 +396,7 @@ export default function DesignerDashBoard() {
   ];
 
   const [range, setRange] = useState("year");
-
+  const navigate = useNavigate();
   const getCurrentData = () => {
     if (range === "week") return weekData;
     if (range === "month") return monthData;
@@ -367,34 +412,35 @@ export default function DesignerDashBoard() {
     const tab = params.get("tab");
 
     if (tab === "design") setTabIndex(2);
+    navigate(location.pathname, { replace: true });
   }, [location.search]);
+
+  // run reloadOrders whenever tabIndex changes
+  useEffect(() => {
+    reloadOrders();
+  }, [tabIndex]);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
   };
 
-  const generateMockMaterial = (inventory: StoredMaterial[]) => {
+  const generateMockMaterial = (inventory: MaterialInStored[]) => {
     return inventory.map((inventory) => ({
       id: inventory.materialId,
-      material: inventory.material.name,
+      material: inventory.name,
       quantity: inventory.quantity,
-      quantityAvailable: inventory.material.quantityAvailable,
-      status:
-        inventory.quantity <= 0
-          ? "Hết Hàng"
-          : inventory.quantity < 30
-          ? "Sắp Hết Hàng"
-          : "Còn Hàng",
-      supplier: inventory.material.supplierName,
+      quantityAvailable: inventory.quantityAvailable,
+      status: inventory.status,
+      supplier: inventory.supplierName,
       costPerUnit: new Intl.NumberFormat("vi-VN", {
         style: "currency",
         currency: "VND",
-      }).format(inventory.material.pricePerUnit),
+      }).format(inventory.pricePerUnit),
       totalValue: new Intl.NumberFormat("vi-VN", {
         style: "currency",
         currency: "VND",
-      }).format(inventory.cost),
-      creatAt: new Date(inventory.lastBuyDate).toLocaleString("vi-VN", {
+      }).format(inventory.pricePerUnit * inventory.quantity),
+      creatAt: new Date(inventory.lastUpdated).toLocaleString("vi-VN", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -405,8 +451,6 @@ export default function DesignerDashBoard() {
     }));
   };
   type MaterialRow = ReturnType<typeof generateMockMaterial>[number];
-
-  const [openMaterial, setOpenMaterial] = useState(false);
 
   const material_columns: GridColDef<MaterialRow>[] = [
     { field: "id", headerName: "ID", width: 90 },
@@ -444,10 +488,10 @@ export default function DesignerDashBoard() {
           | "success"
           | "primary" = "default";
         switch (params.value) {
-          case "Còn Hàng":
+          case "Còn Hàng":
             color = "success";
             break;
-          case "Sắp Hết Hàng":
+          case "Còn Ít":
             color = "warning";
             break;
           case "Hết Hàng":
@@ -628,7 +672,7 @@ export default function DesignerDashBoard() {
 
   const totalMaterials = storedMaterial.length;
   const totalCost = storedMaterial.reduce(
-    (sum, m) => sum + m.material.pricePerUnit * m.quantity,
+    (sum, m) => sum + m.pricePerUnit * m.quantity,
     0
   );
   const lowStockCount = storedMaterial.filter(
@@ -993,7 +1037,7 @@ export default function DesignerDashBoard() {
     try {
       const result = await DesignService.deleteDesign(designId);
       if (result) {
-        // 🔄 Reload lại danh sách từ server
+        //Reload lại danh sách từ server
         const designData = await DesignService.getAllDesignByDesigner(
           getDesignerId()
         );
@@ -1171,7 +1215,9 @@ export default function DesignerDashBoard() {
       setMainImage(""); // hoặc một placeholder image
     }
   }, [productInfo.designImages]);
+
   const handleUpdateProductDetail = async () => {
+    setLoading(true); // bật loading trước
     try {
       await DesignService.updateProductDetailAsync(productInfo);
       toast.success("Cập nhật thành công!");
@@ -1183,7 +1229,7 @@ export default function DesignerDashBoard() {
       console.error("Cập nhật thất bại:", err);
       toast.error(err.message || "Có lỗi khi cập nhật");
     } finally {
-      setLoading(false);
+      setLoading(false); // tắt loading
     }
   };
 
@@ -1396,6 +1442,7 @@ export default function DesignerDashBoard() {
     handleSubmit,
     control,
     setValue,
+    getValues,
     watch,
     trigger,
     formState: { errors },
@@ -1408,15 +1455,21 @@ export default function DesignerDashBoard() {
   });
 
   const onSubmit = async (formData: CreateProductSchemaFormValues) => {
+    if (!selectedDesign) {
+      toast.error("Hãy Chọn 1 Rập Thiết Kế");
+      return;
+    }
+
     const files: File[] = formData.images || [];
     for (const file of files) {
       const ext = file.name.split(".").pop()?.toLowerCase();
-      if (ext !== "jpg" && ext !== "jpeg") {
-        toast.error("Chỉ chấp nhận file JPG/JPEG");
+      if (!["jpeg", "png"].includes(ext || "")) {
+        toast.error("Chỉ chấp nhận file PNG/JPEG");
         return;
       }
     }
-    // Kiểm tra nguyên liệu trước
+
+    // Kiểm tra nguyên liệu
     const insufficientMaterial = currentDesign.materials.some((mat) => {
       const stored = matchingMaterials.find(
         (m) => m.materialId === mat.materialId
@@ -1426,24 +1479,54 @@ export default function DesignerDashBoard() {
 
     if (insufficientMaterial) {
       toast.error("Không đủ nguyên liệu để tạo sản phẩm");
-      return; // dừng submit
+      return;
     }
-
-    const payload = { ...formData };
 
     try {
       setLoading(true);
-      await ProductService.createDesignDraft(payload);
-      await DesignService.updateProductDetailAsync(productInfo);
-      toast.success("Gửi đơn thành công!");
-      setOpenCreateDialog(false); // đóng dialog
-      if (tabIndex === 1) {
-        reloadTabProduct();
-        reloadTab2();
+
+      if (allSelected) {
+        //Chọn tất cả → giữ createDesignDraft
+        const payload = { ...formData };
+        await ProductService.createDesignDraft(payload);
+        await DesignService.updateProductDetailAsync(productInfo);
+
+        toast.success("Tạo sản phẩm thành công!");
+        if (tabIndex === 1) {
+          reloadTabProduct();
+          reloadTab2();
+        }
+        setOpenCreateDialog(false);
+      } else if (selectedVariants.length > 0 && currentDesign.designsVariants) {
+        //Chọn từng variant → gộp file + variants 1 lần
+        const variantsPayload = currentDesign.designsVariants
+          .filter((v) => selectedVariants.includes(v.id))
+          .map((v) => ({
+            SizeId: v.sizeId,
+            ColorCode: v.colorCode,
+            Quantity: v.quantity,
+          }));
+
+        const payload = {
+          designId: currentDesign.designId,
+          variants: JSON.stringify(variantsPayload),
+          files, // gửi file 1 lần
+        };
+
+        await ProductService.updateProductDetailAsync(payload);
+
+        toast.success("Tạo sản phẩm thành công!");
+        if (tabIndex === 1) {
+          reloadTabProduct();
+          reloadTab2();
+        }
+        setOpenCreateDialog(false);
+      } else {
+        toast.error("Vui lòng chọn ít nhất một variant hoặc tất cả");
       }
     } catch (err: any) {
-      toast.error(err.message);
-      console.error("❌ Error submitting application:", err);
+      console.error("❌ Error submitting:", err);
+      toast.error(err.message || "Có lỗi xảy ra!");
     } finally {
       setLoading(false);
     }
@@ -1590,21 +1673,23 @@ export default function DesignerDashBoard() {
             sx={{ display: "flex", justifyContent: "flex-end", width: "100%" }}
           >
             <Stack direction="row" spacing={1}>
-              <IconButton
-                size="small"
-                color="error"
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      "Bạn có chắc chắn muốn xoá variant này không?"
-                    )
-                  ) {
-                    handleDeleteVariant(params.row.variantId);
-                  }
-                }}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
+              <Tooltip title="Xóa kế hoạch" arrow>
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        "Bạn có chắc chắn muốn xoá variant này không?"
+                      )
+                    ) {
+                      handleDeleteVariant(params.row.variantId);
+                    }
+                  }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
             </Stack>
           </Box>
         );
@@ -1613,7 +1698,8 @@ export default function DesignerDashBoard() {
   ];
 
   //Datagrid Product
-  const product_columns = [
+
+  const product_columns: GridColDef<FullProductDetail>[] = [
     { field: "sku", headerName: "SKU", flex: 1 },
     { field: "sizeName", headerName: "Kích Thước", width: 120 },
     {
@@ -1646,6 +1732,313 @@ export default function DesignerDashBoard() {
           size="small"
         />
       ),
+    },
+    {
+      field: "actions",
+      headerName: "",
+      width: 50,
+      sortable: false,
+      filterable: false,
+      headerAlign: "right",
+      disableColumnMenu: true,
+      renderCell: (params) => {
+        const [open, setOpen] = React.useState(false);
+        const [quantity, setQuantity] = React.useState(0);
+        const [designMaterial, setDesignMaterial] = React.useState<
+          DesignMaterial[]
+        >([]);
+
+        // tìm design theo designId của row
+        const design = designs.find((d) => d.designId === params.row.designId);
+
+        const getDesignMaterial = async () => {
+          const designMaterial =
+            await DesignService.getDesignMaterialByDesignId(
+              params.row.designId
+            );
+          setDesignMaterial(designMaterial);
+        };
+
+        const reloadTab = async () => {
+          const response = await DesignService.getDesignProductDetailsAsync(
+            params.row.designId,
+            getDesignerId()
+          );
+          setDesignProductDetail(response);
+        };
+
+        const handleSave = async () => {
+          const payload = {
+            designId: params.row.designId,
+            variants: JSON.stringify([
+              {
+                SizeId: params.row.sizeId, // nếu không có sizeId thì cần map từ sizeName
+                ColorCode: params.row.colorCode,
+                Quantity: quantity,
+              },
+            ]),
+          };
+
+          try {
+            const res = await ProductService.updateProductDetailAsync(payload);
+
+            toast.success("Update Thành Công");
+            reloadTab();
+            reloadTabProduct();
+            setOpen(false);
+          } catch (err) {
+            console.error(err);
+            alert("Không thể tạo sản phẩm");
+          }
+        };
+
+        const handleAddToCart = async (
+          material: any,
+          consumption: number,
+          designerStock: number
+        ) => {
+          // Lượng cần order thực tế
+          const neededQuantity = Math.max(consumption - designerStock, 0);
+
+          if (neededQuantity === 0) {
+            toast.info("Designer vẫn đủ nguyên liệu, không cần order!");
+            return;
+          }
+
+          // Kiểm tra tồn kho nhà cung cấp
+          let finalQuantity = neededQuantity;
+          if (neededQuantity > material.supplierStock) {
+            finalQuantity = material.supplierStock;
+            toast.warning(
+              `Số lượng yêu cầu vượt NCC còn: chỉ đặt hàng được ${material.supplierStock} m`
+            );
+          }
+
+          // Gọi API thêm vào giỏ hàng
+          await addToCart({
+            materialId: material.materialId || 0,
+            quantity: finalQuantity,
+          });
+
+          setOpenCreateDialog(false);
+
+          toast.success(
+            `Đã thêm ${finalQuantity} mét ${
+              material.materialName || "Nguyên liệu"
+            } vào giỏ hàng!`
+          );
+        };
+
+        return (
+          <>
+            <Tooltip title="Thêm Sản Phẩm" arrow>
+              <IconButton
+                size="small"
+                color="primary"
+                onClick={() => {
+                  setOpen(true);
+                  getDesignMaterial();
+                }}
+              >
+                <DesignServicesOutlinedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            <Dialog
+              open={open}
+              onClose={() => setOpen(false)}
+              maxWidth="md"
+              fullWidth
+            >
+              <DialogTitle>
+                <Typography variant="h6" fontWeight="bold">
+                  Thêm sản phẩm
+                </Typography>
+              </DialogTitle>
+
+              <DialogContent dividers>
+                {/* Thông tin sản phẩm */}
+                <Box display={"flex"} alignItems={"center"}>
+                  <Grid flex={1}>
+                    <Typography variant="body1">
+                      <b>SKU:</b> {params.row.sku}
+                    </Typography>
+                    <Typography variant="body1">
+                      <b>Kích thước:</b> {params.row.sizeName}
+                    </Typography>
+                    <Typography variant="body1">
+                      <b>Tỉ lệ KT:</b> {params.row.sizeRatio}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                    >
+                      <b>Màu sắc:</b>
+                      <Box
+                        sx={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: "50%",
+                          border: "1px solid #ccc",
+                          backgroundColor: params.row.colorCode,
+                        }}
+                      />
+                      {params.row.colorCode}
+                    </Typography>
+                  </Grid>
+                  <Grid flex={1}>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Chip
+                        label={`Còn lại: ${params.row.quantityAvailable}`}
+                        color={
+                          params.row.quantityAvailable > 0 ? "success" : "error"
+                        }
+                        variant="outlined"
+                        sx={{ fontWeight: "bold", fontSize: "1rem" }}
+                      />
+                    </Box>
+                  </Grid>
+                </Box>
+
+                <Divider sx={{ my: 2 }} />
+
+                {/* Nguyên liệu */}
+                <Box>
+                  <Typography variant="h6" gutterBottom>
+                    Nguyên liệu
+                  </Typography>
+
+                  {designMaterial.length ? (
+                    <Table
+                      size="small"
+                      sx={{
+                        borderRadius: 2,
+                        overflow: "hidden",
+                        boxShadow: 2,
+                        "& .MuiTableRow-root.missing": {
+                          backgroundColor: "#ffeaea",
+                        },
+                      }}
+                    >
+                      <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
+                        <TableRow>
+                          <TableCell>
+                            <b>Nguyên liệu</b>
+                          </TableCell>
+                          <TableCell align="center">
+                            <b>Tiêu hao</b>
+                          </TableCell>
+                          <TableCell align="center">
+                            <b>Tồn kho</b>
+                          </TableCell>
+                          <TableCell align="center">
+                            <b>Thao tác</b>
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {designMaterial.map((m) => {
+                          const consumption = (
+                            m.requiredMeters *
+                            quantity *
+                            params.row.sizeRatio
+                          ).toFixed(1);
+
+                          const isMissing =
+                            parseFloat(consumption) > m.designerStock;
+
+                          return (
+                            <TableRow
+                              key={m.materialId}
+                              hover
+                              className={isMissing ? "missing" : ""}
+                            >
+                              <TableCell>
+                                <Typography>{m.materialName}</Typography>
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
+                                  Yêu cầu gốc: {m.requiredMeters} m
+                                </Typography>
+                              </TableCell>
+                              <TableCell align="center">
+                                {consumption} m
+                              </TableCell>
+                              <TableCell align="center">
+                                {m.designerStock} m
+                              </TableCell>
+                              <TableCell align="center">
+                                {isMissing ? (
+                                  <Box>
+                                    <Button
+                                      variant="contained"
+                                      color="error"
+                                      size="small"
+                                      onClick={() =>
+                                        handleAddToCart(
+                                          m,
+                                          parseFloat(consumption),
+                                          m.designerStock
+                                        )
+                                      }
+                                    >
+                                      Order
+                                    </Button>
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                    >
+                                      NCC còn: {m.supplierStock} m
+                                    </Typography>
+                                  </Box>
+                                ) : (
+                                  <Typography
+                                    variant="body2"
+                                    color="success.main"
+                                  >
+                                    Đủ
+                                  </Typography>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <Typography>Không có nguyên liệu</Typography>
+                  )}
+                </Box>
+
+                <Divider sx={{ my: 2 }} />
+
+                {/* Nhập số lượng */}
+                <Box mt={1}>
+                  <TextField
+                    label="Số lượng"
+                    type="number"
+                    fullWidth
+                    value={quantity}
+                    onChange={(e) => setQuantity(Number(e.target.value))}
+                    inputProps={{
+                      min: 1,
+                      max: params.row.quantityAvailable || 9999,
+                    }}
+                  />
+                </Box>
+              </DialogContent>
+
+              <DialogActions sx={{ p: 2 }}>
+                <Button onClick={() => setOpen(false)}>Đóng</Button>
+                <Button variant="contained" onClick={() => handleSave()}>
+                  Lưu
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </>
+        );
+      },
     },
   ];
 
@@ -1891,7 +2284,7 @@ export default function DesignerDashBoard() {
       {/* Tab Part */}
       <Box
         sx={{
-          width: "50%",
+          width: "70%",
           background: "rgba(241, 245, 249, 1)",
           display: "flex",
         }}
@@ -2227,7 +2620,7 @@ export default function DesignerDashBoard() {
                     color: "black",
                   }}
                 >
-                  Tạo Sản Phẩm
+                  Tạo Lô Sản Phẩm
                 </Typography>
                 <Typography
                   sx={{
@@ -2235,7 +2628,7 @@ export default function DesignerDashBoard() {
                     opacity: "40%",
                   }}
                 >
-                  Tạo ra sản phẩm theo kế hoạch
+                  Tạo ra lô sản phẩm theo kế hoạch
                 </Typography>
               </Box>
             </Button>
@@ -2250,7 +2643,7 @@ export default function DesignerDashBoard() {
               onSubmit: handleSubmit(onSubmit),
             }}
           >
-            <DialogTitle>Sản xuất Theo Kế Hoạch</DialogTitle>
+            <DialogTitle>Sản Xuất Lô Sản Phẩm Theo Kế Hoạch</DialogTitle>
             <DialogContent>
               <Box
                 sx={{
@@ -2331,59 +2724,80 @@ export default function DesignerDashBoard() {
 
                 {currentDesign && (
                   <Box>
-                    {/* Danh sách Variant */}
-                    <Typography variant="subtitle1">
-                      Danh sách Kế Hoạch Thiết kế:
-                    </Typography>
-                    {currentDesign.designsVariants.map((variant, index) => (
-                      <Box
-                        key={index}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
-                          p: 1,
-                          borderBottom: "1px solid #eee",
-                        }}
-                      >
-                        <Typography variant="body2" flex={1}>
-                          Kế Hoạch #{variant.id}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          flex={1}
-                        >
-                          Kích Thước: {variant.sizeName}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          flex={1}
-                        >
-                          Tỷ lệ KT: {variant.ratio}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          flex={1}
-                        >
-                          Màu Sắc: {variant.colorCode}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          flex={1}
-                        >
-                          Số lượng:{" "}
-                          {new Intl.NumberFormat("vi-VN").format(
-                            variant.quantity
-                          )}
-                        </Typography>
-                      </Box>
-                    ))}
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={allSelected}
+                          indeterminate={
+                            selectedVariants.length > 0 && !allSelected
+                          }
+                          onChange={handleSelectAll}
+                        />
+                      }
+                      label="Chọn tất cả"
+                    />
 
-                    {/* Tổng quantity */}
+                    {/* Danh sách variants */}
+                    {currentDesign.designsVariants.map((variant) => {
+                      const isChecked = selectedVariants.includes(variant.id);
+
+                      return (
+                        <Box
+                          key={variant.id}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 2,
+                            p: 1,
+                            borderBottom: "1px solid #eee",
+                          }}
+                        >
+                          <Checkbox
+                            checked={isChecked}
+                            onChange={(e) =>
+                              handleSelectVariant(variant.id, e.target.checked)
+                            }
+                          />
+
+                          <Typography variant="body2" flex={1}>
+                            Kế Hoạch #{variant.id}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            flex={1}
+                          >
+                            Kích Thước: {variant.sizeName}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            flex={1}
+                          >
+                            Tỷ lệ KT: {variant.ratio}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            flex={1}
+                          >
+                            Màu Sắc: {variant.colorCode}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            flex={1}
+                          >
+                            Số lượng:{" "}
+                            {new Intl.NumberFormat("vi-VN").format(
+                              variant.quantity
+                            )}
+                          </Typography>
+                        </Box>
+                      );
+                    })}
+
+                    {/* Tổng quantity của các variant đã chọn */}
                     <Box
                       sx={{
                         display: "flex",
@@ -2394,12 +2808,11 @@ export default function DesignerDashBoard() {
                       }}
                     >
                       <Typography variant="subtitle2" color="primary">
-                        Tổng số lượng:{" "}
+                        Tổng số lượng đã chọn:{" "}
                         {new Intl.NumberFormat("vi-VN").format(
-                          currentDesign.designsVariants.reduce(
-                            (sum, v) => sum + v.quantity,
-                            0
-                          )
+                          currentDesign.designsVariants
+                            .filter((v) => selectedVariants.includes(v.id))
+                            .reduce((sum, v) => sum + v.quantity, 0)
                         )}
                       </Typography>
                     </Box>
@@ -2496,7 +2909,7 @@ export default function DesignerDashBoard() {
                             >
                               <Box>
                                 <Typography variant="body2">
-                                  {mat.material.name}
+                                  {mat.name}
                                 </Typography>
                                 {isNotEnough ? (
                                   <Typography
@@ -2523,10 +2936,7 @@ export default function DesignerDashBoard() {
                                   size="small"
                                   color="primary"
                                   onClick={() =>
-                                    handleAddToCart(
-                                      mat.material,
-                                      available - required
-                                    )
+                                    handleAddToCart(mat, available - required)
                                   }
                                 >
                                   Đặt hàng
@@ -2678,10 +3088,17 @@ export default function DesignerDashBoard() {
               </Box>
             </DialogContent>
             <DialogActions>
+              <Button onClick={() => setOpenCreateDialog(false)}>Đóng</Button>
               <Button
                 type="submit"
                 variant="contained"
-                startIcon={<AddIcon />}
+                startIcon={
+                  loading ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    <AddIcon />
+                  )
+                }
                 sx={{
                   backgroundColor: "black",
                   "&:hover": { backgroundColor: "#333" },
@@ -2748,7 +3165,7 @@ export default function DesignerDashBoard() {
             <Dialog
               open={openViewProductDetailDialog}
               onClose={() => setOpenViewProductDetailDialog(false)}
-              maxWidth="xl"
+              maxWidth="md"
               fullWidth
             >
               <DialogTitle>Thông Tin Sản Phẩm</DialogTitle>
@@ -2789,20 +3206,20 @@ export default function DesignerDashBoard() {
                               type="file"
                               hidden
                               multiple // cho chọn nhiều ảnh
-                              accept=".jpeg,.jpg"
+                              accept=".jpeg,.png"
                               onChange={(e) => {
                                 const files = e.target.files;
                                 if (!files || files.length === 0) return;
 
-                                // Lọc chỉ file jpeg/jpg
+                                // Lọc chỉ file jpeg/png
                                 const newFiles = Array.from(files).filter(
                                   (file) =>
                                     file.type === "image/jpeg" ||
-                                    file.type === "image/jpg"
+                                    file.type === "image/png"
                                 );
 
                                 if (newFiles.length === 0) {
-                                  alert("Chỉ chấp nhận file .jpeg hoặc .jpg");
+                                  alert("Chỉ chấp nhận file .jpeg hoặc .png");
                                   return;
                                 }
 
@@ -2836,9 +3253,7 @@ export default function DesignerDashBoard() {
                                 designImages: selectedProductDetail.image || [], // preview
                                 files: [], // xóa file mới chưa upload
                               }));
-                              setMainImage(
-                                selectedProductDetail.image?.[0] || ""
-                              );
+                              setMainImage(selectedProductDetail.image?.[0]);
                             }}
                           >
                             Hủy
@@ -2846,55 +3261,80 @@ export default function DesignerDashBoard() {
                         </Box>
                         {/* Thông báo định dạng */}
                         <Typography variant="caption" color="text.secondary">
-                          Chỉ chấp nhận file ảnh có đuôi .jpg hoặc .jpeg
+                          Chỉ chấp nhận file ảnh có đuôi .png hoặc .jpeg
                         </Typography>
                       </Box>
-                      <Box>
-                        {/* Ảnh chính */}
-                        <Box
-                          component="img"
-                          src={mainImage || productInfo.designImages?.[0] || ""}
-                          alt="main"
-                          sx={{
-                            width: 500,
-                            height: 500,
-                            objectFit: "cover",
-                            borderRadius: 2,
-                            mb: 2,
-                          }}
-                        />
+                      {productInfo.designImages ? (
+                        <Box>
+                          {/* Ảnh chính */}
+                          <Box
+                            component="img"
+                            src={
+                              mainImage ||
+                              productInfo.designImages?.[0] ||
+                              DesignDefaultImage
+                            }
+                            alt="main"
+                            sx={{
+                              width: "100%",
+                              maxWidth: 500,
+                              aspectRatio: "1/1",
+                              objectFit: "cover",
+                              borderRadius: 2,
+                              mb: 2,
+                            }}
+                          />
 
-                        {/* Thumbnails */}
-                        <Box display="flex" gap={1}>
-                          {productInfo.designImages?.map((src, idx) => (
-                            <Box
-                              key={idx}
-                              flex={1}
-                              sx={{
-                                borderRadius: 1,
-                                overflow: "hidden",
-                                border:
-                                  mainImage === src
-                                    ? "2px solid #1976d2"
-                                    : "2px solid transparent",
-                                cursor: "pointer",
-                              }}
-                              onClick={() => setMainImage(src)}
-                            >
+                          {/* Thumbnails */}
+                          <Box display="flex" gap={1}>
+                            {productInfo.designImages?.map((src, idx) => (
                               <Box
-                                component="img"
-                                src={src}
-                                alt={`thumb-${idx}`}
+                                key={idx}
+                                flex={1}
                                 sx={{
+                                  borderRadius: 1,
+                                  overflow: "hidden",
+                                  border:
+                                    mainImage === src
+                                      ? "2px solid #1976d2"
+                                      : "2px solid transparent",
+                                  cursor: "pointer",
                                   width: "100%",
-                                  height: 80,
-                                  objectFit: "cover",
                                 }}
-                              />
-                            </Box>
-                          ))}
+                                onClick={() => setMainImage(src)}
+                              >
+                                <Box
+                                  component="img"
+                                  src={src || DesignDefaultImage}
+                                  alt={`thumb-${idx}`}
+                                  sx={{
+                                    width: "100%",
+
+                                    objectFit: "fill",
+                                  }}
+                                />
+                              </Box>
+                            ))}
+                          </Box>
                         </Box>
-                      </Box>
+                      ) : (
+                        <Box
+                          sx={{
+                            width: "100%",
+                            maxWidth: 500,
+                            aspectRatio: "1/1",
+                            borderRadius: 2,
+                            border: "2px dashed #ccc",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#999",
+                            fontSize: 16,
+                          }}
+                        >
+                          Không có hình ảnh
+                        </Box>
+                      )}
                     </Box>
 
                     {/* Right: Input fields */}
@@ -3008,7 +3448,17 @@ export default function DesignerDashBoard() {
                 </Box>
               </DialogContent>
               <DialogActions>
-                <Button onClick={() => handleUpdateProductDetail()}>Lưu</Button>
+                <Button
+                  variant="contained"
+                  onClick={handleUpdateProductDetail}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : (
+                    "Lưu"
+                  )}
+                </Button>
                 <Button onClick={() => setOpenViewProductDetailDialog(false)}>
                   Đóng
                 </Button>
@@ -3064,7 +3514,7 @@ export default function DesignerDashBoard() {
                 borderColor: "rgba(0,0,0,0.1)",
                 textTransform: "none",
               }}
-              href="/designer/dashboard/create"
+              onClick={() => navigate("/designer/dashboard/create")}
             >
               <DesignServicesOutlinedIcon color="success" />
               <Box
@@ -3931,13 +4381,6 @@ export default function DesignerDashBoard() {
         </Box>
       )}
 
-      {/* Tab Quản Lý Đơn Hàng */}
-      {tabIndex === 4 && (
-        <Box sx={{ width: "100%" }}>
-          <DesignerOrders />
-        </Box>
-      )}
-
       {tabIndex === 3 && (
         <Box mt={3}>
           {/* Header */}
@@ -3977,107 +4420,130 @@ export default function DesignerDashBoard() {
         </Box>
       )}
 
-      {/* Bottom Part */}
-      <Box sx={{ width: "100%", display: "flex", gap: 3, margin: "30px 0" }}>
-        {/* Card Quản Lí Giao Hàng */}
-        <Card
-          sx={{
-            width: 300,
-            textAlign: "center",
-            p: 2,
-            flex: 1,
-            border: "1px solid rgba(0, 0, 0, 0.1)",
-          }}
-        >
-          <Box sx={{ display: "flex", margin: "10px 0", gap: 1 }}>
-            <LocalShippingOutlinedIcon
-              color="success"
-              sx={{ margin: "auto 0" }}
-            />
-            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-              Quản Lý Đơn Hàng
-            </Typography>
-          </Box>
-          <Stack spacing={2} marginBottom={3}>
-            {orders.map((item, index) => (
-              <Button
-                key={index}
-                variant="outlined"
-                sx={{
-                  borderColor: "rgba(0,0,0,0.1)",
-                  textTransform: "none",
-                }}
-              >
-                <Box sx={{ width: "100%", display: "flex" }}>
-                  <Box
-                    sx={{
-                      textAlign: "left",
-                      padding: "10px",
-                      display: "flex",
-                      flexDirection: "column",
-                      marginRight: "auto",
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        width: "100%",
-                        marginRight: "auto",
-                        fontWeight: "bold",
-                        color: "black",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {item.product}
-                    </Typography>
-                    <Typography
-                      sx={{
-                        color: "black",
-                        opacity: "40%",
-                      }}
-                    >
-                      {item.orderId}
-                    </Typography>
-                  </Box>
-                  {/* Conditional Chip */}
-                  {item.status === 1 ? (
-                    <Chip
-                      label="Đang vận chuyển"
-                      sx={{
-                        backgroundColor: "rgba(219, 234, 254, 1)",
-                        color: "rgba(62, 92, 188, 1)",
-                      }}
-                    />
-                  ) : item.status === 2 ? (
-                    <Chip
-                      label="Chưa Xử Lý"
-                      sx={{
-                        backgroundColor: "rgba(220, 252, 231, 1)",
-                        color: "rgba(59, 129, 86, 1)",
-                      }}
-                    />
-                  ) : item.status === 3 ? (
-                    <Chip
-                      label="Đã hoàn thành"
-                      sx={{
-                        backgroundColor: "rgba(254, 249, 195, 1)",
-                        color: "rgba(139, 86, 23, 1)",
-                      }}
-                    />
-                  ) : (
-                    <Chip label="Không Xác Định" color="error" />
-                  )}
-                </Box>
-              </Button>
-            ))}
-          </Stack>
+      {/* Tab Quản Lý Đơn Hàng */}
+      {tabIndex === 4 && (
+        <Box sx={{ width: "100%" }}>
+          <DesignerOrders />
+        </Box>
+      )}
 
-          <Button variant="contained" color="success">
-            Xem toàn bộ đơn hàng
-          </Button>
-        </Card>
-      </Box>
+      {tabIndex !== 4 && (
+        <Box sx={{ width: "100%", display: "flex", gap: 3, my: 4 }}>
+          <Card
+            sx={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              p: 2,
+              border: "1px solid rgba(0,0,0,0.1)",
+              borderRadius: 3,
+              boxShadow: 2,
+            }}
+          >
+            {/* Header */}
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+              <LocalShippingOutlinedIcon color="success" />
+              <Typography variant="h6" fontWeight="bold" ml={1}>
+                Quản Lý Đơn Hàng
+              </Typography>
+            </Box>
+
+            {/* Danh sách đơn hàng */}
+            <Stack
+              spacing={1.5}
+              sx={{ flex: 1, overflowY: "auto", maxHeight: 280 }}
+            >
+              {orders.filter(
+                (item) => item.status.toLowerCase() !== "delivered"
+              ).length > 0 ? (
+                orders
+                  .filter((item) => item.status.toLowerCase() !== "delivered")
+                  .map((item, index) => (
+                    <Card
+                      key={index}
+                      variant="outlined"
+                      sx={{
+                        p: 1.5,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        borderColor: "rgba(0,0,0,0.08)",
+                        borderRadius: 2,
+                      }}
+                    >
+                      <Box>
+                        <Typography
+                          fontWeight="bold"
+                          fontSize={14}
+                          color="black"
+                          sx={{ mb: 0.5 }}
+                        >
+                          Đơn #{item.orderId}
+                        </Typography>
+                        <Typography fontSize={12} color="text.secondary">
+                          {new Date(item.orderDate).toLocaleDateString("vi-VN")}
+                        </Typography>
+                        <Typography fontSize={12} color="text.secondary">
+                          {item.sellerName}
+                        </Typography>
+                      </Box>
+
+                      {/* Trạng thái */}
+                      {item.status.toLowerCase() === "shipped" ? (
+                        <Chip
+                          label="Đang vận chuyển"
+                          size="small"
+                          sx={{
+                            backgroundColor: "rgba(219, 234, 254, 1)",
+                            color: "rgba(62, 92, 188, 1)",
+                          }}
+                        />
+                      ) : item.status.toLowerCase() === "processing" ? (
+                        <Chip
+                          label="Chờ xử lý"
+                          size="small"
+                          sx={{
+                            backgroundColor: "rgba(220, 252, 231, 1)",
+                            color: "rgba(59, 129, 86, 1)",
+                          }}
+                        />
+                      ) : (
+                        <Chip
+                          label="Không xác định"
+                          size="small"
+                          color="error"
+                        />
+                      )}
+                    </Card>
+                  ))
+              ) : (
+                <Box
+                  sx={{
+                    p: 4,
+                    textAlign: "center",
+                    border: "1px dashed rgba(0,0,0,0.2)",
+                    borderRadius: 2,
+                  }}
+                >
+                  <Typography fontSize={14} color="text.secondary">
+                    Chưa có order
+                  </Typography>
+                </Box>
+              )}
+            </Stack>
+
+            {/* Nút xem toàn bộ */}
+            <Button
+              variant="contained"
+              color="success"
+              sx={{ mt: 2, borderRadius: 2 }}
+              onClick={() => setTabIndex(4)}
+            >
+              Xem toàn bộ đơn hàng
+            </Button>
+          </Card>
+        </Box>
+      )}
     </Box>
   ) : (
     <Box
