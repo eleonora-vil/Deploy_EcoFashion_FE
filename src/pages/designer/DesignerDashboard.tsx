@@ -3514,7 +3514,7 @@ export default function DesignerDashboard() {
                 borderColor: "rgba(0,0,0,0.1)",
                 textTransform: "none",
               }}
-              onClick={() => navigate("/designer/dashboard/create")}
+              href="/designer/dashboard/create"
             >
               <DesignServicesOutlinedIcon color="success" />
               <Box

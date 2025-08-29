@@ -69,7 +69,7 @@ import FileUpload from "../../components/FileUpload";
 import { useNavigate } from "react-router-dom";
 
 export default function AddDesignDraft() {
-  const [laborCost, setLaborCost] = useState<number>(16000);
+  const [laborCost, setLaborCost] = useState(16000);
   const [laborHour, setLaborHour] = useState(1);
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -962,15 +962,13 @@ export default function AddDesignDraft() {
                             const value = e.target.value;
 
                             if (value === "") {
-                              setLaborCost(16000); // reset về 16000 khi để trống
+                              setLaborCost(16000); // nếu để trống thì reset về 16000
                               return;
                             }
 
                             const intValue = parseInt(value, 10);
 
-                            if (!isNaN(intValue)) {
-                              setLaborCost(intValue);
-                            }
+                            setLaborCost(intValue);
                           }}
                           inputProps={{ min: 16000, step: 1 }}
                         />
@@ -983,6 +981,7 @@ export default function AddDesignDraft() {
                         type="number"
                         label="Giờ Làm"
                         value={laborHour}
+                        defaultValue={1}
                         onChange={(e) => {
                           const value = e.target.value;
 
