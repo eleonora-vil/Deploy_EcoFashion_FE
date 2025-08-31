@@ -69,7 +69,7 @@ import FileUpload from "../../components/FileUpload";
 import { useNavigate } from "react-router-dom";
 
 export default function AddDesignDraft() {
-  const [laborCost, setLaborCost] = useState(16000);
+  const [laborCost, setLaborCost] = useState<number>(16000);
   const [laborHour, setLaborHour] = useState(1);
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -444,7 +444,7 @@ export default function AddDesignDraft() {
         (sum, item) => sum + item.totalCarbon,
         0
       ) * 10
-    ) / 10;
+    ) / 10 || 0;
 
   // Step 5.2: Calc Sum of TotalWater
   const totalWaterAll =
@@ -453,7 +453,7 @@ export default function AddDesignDraft() {
         (sum, item) => sum + item.totalWater,
         0
       ) * 10
-    ) / 10;
+    ) / 10 || 0;
 
   // Step 5.3: Calc Sum of TotalWaste
   const totalWasteAll =
@@ -462,14 +462,15 @@ export default function AddDesignDraft() {
         (sum, item) => sum + item.totalWaste,
         0
       ) * 10
-    ) / 10;
+    ) / 10 || 0;
   // Step 5.4: Calc Sum of sustainabilityScore
-  const sustainabilityScoreAll = Math.round(
-    Object.values(groupedByMaterial).reduce(
-      (sum, item) => sum + item.sustainabilityScore,
-      0
-    )
-  );
+  const sustainabilityScoreAll =
+    Math.round(
+      Object.values(groupedByMaterial).reduce(
+        (sum, item) => sum + item.sustainabilityScore,
+        0
+      )
+    ) || 0;
 
   enum MaterialStatus {
     Main = 0,
@@ -705,19 +706,6 @@ export default function AddDesignDraft() {
                 paddingBottom: 2,
               }}
             >
-              <Tooltip title="Coming soon">
-                <Button
-                  variant="outlined"
-                  startIcon={<SaveAltIcon />}
-                  sx={{
-                    color: "black",
-                    borderColor: "black",
-                    textTransform: "none",
-                  }}
-                >
-                  Mẫu
-                </Button>
-              </Tooltip>
               <Button
                 type="submit"
                 variant="outlined"
@@ -737,20 +725,6 @@ export default function AddDesignDraft() {
               >
                 {loading ? "Đang lưu..." : "Lưu"}
               </Button>
-              <Tooltip title="Coming soon">
-                <Button
-                  variant="contained"
-                  startIcon={<ShareOutlinedIcon sx={{ color: "white" }} />}
-                  sx={{
-                    backgroundColor: "rgba(22, 163, 74, 1)",
-                    color: "white",
-                    borderColor: "rgba(22, 163, 74, 1)",
-                    textTransform: "none",
-                  }}
-                >
-                  Chia Sẻ
-                </Button>
-              </Tooltip>
             </Box>
           </Box>
         </Box>
@@ -962,13 +936,15 @@ export default function AddDesignDraft() {
                             const value = e.target.value;
 
                             if (value === "") {
-                              setLaborCost(16000); // nếu để trống thì reset về 16000
+                              setLaborCost(16000); // reset về 16000 khi để trống
                               return;
                             }
 
                             const intValue = parseInt(value, 10);
 
-                            setLaborCost(intValue);
+                            if (!isNaN(intValue)) {
+                              setLaborCost(intValue);
+                            }
                           }}
                           inputProps={{ min: 16000, step: 1 }}
                         />
@@ -981,7 +957,6 @@ export default function AddDesignDraft() {
                         type="number"
                         label="Giờ Làm"
                         value={laborHour}
-                        defaultValue={1}
                         onChange={(e) => {
                           const value = e.target.value;
 

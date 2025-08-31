@@ -190,6 +190,7 @@ export interface FullProductDetail {
   sizeRatio: number;
   quantityAvailable: number;
   designId: number;
+  lastUpdated: string;
 }
 
 export interface DesignResponse {
@@ -328,10 +329,10 @@ export class DesignService {
   /**
    * Get all design
    */
-  static async getAllDesignByDesigner(designerId: string): Promise<Design[]> {
+  static async getAllDesignByDesigner(): Promise<Design[]> {
     try {
       const response = await apiClient.get<BaseApiResponse<Design[]>>(
-        `/${this.API_BASE}/design-variant/${designerId}`
+        `/${this.API_BASE}/design-variant`
       );
       return handleApiResponse(response);
     } catch (error) {
@@ -668,10 +669,10 @@ export class DesignService {
   /**
    * Get all design that have product
    */
-  static async getAllDesignProuct(designerId: string): Promise<Design[]> {
+  static async getAllDesignProuct(): Promise<Design[]> {
     try {
       const response = await apiClient.get<BaseApiResponse<Design[]>>(
-        `/${this.API_BASE}/designs-with-products/${designerId}`
+        `/${this.API_BASE}/designs-with-products/by-designer`
       );
       return handleApiResponse(response);
     } catch (error) {
@@ -683,13 +684,12 @@ export class DesignService {
    * Get all design with product detail
    */
   static async getDesignProductDetailsAsync(
-    id: number,
-    desingerId: string
+    id: number
   ): Promise<FullProductDetail[]> {
     try {
       const response = await apiClient.get<
         BaseApiResponse<FullProductDetail[]>
-      >(`/${this.API_BASE}/designProductDetails/${id}/${desingerId}`);
+      >(`/${this.API_BASE}/designProductDetails/${id}`);
       return handleApiResponse(response);
     } catch (error) {
       return handleApiError(error);

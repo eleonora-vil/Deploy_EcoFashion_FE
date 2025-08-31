@@ -23,6 +23,7 @@ import SupplierDetailedProfile from "./pages/supplier/SupplierDetailedProfile";
 import SupplierDashboard from "./pages/supplier/SupplierDashboard";
 import SupplierDashboardHome from "./pages/supplier/SupplierDashboardHome";
 import SupplierMaterials from "./pages/supplier/SupplierMaterials";
+import SupplierMaterialTypes from "./pages/supplier/SupplierMaterialTypes";
 import SupplierInventory from "./pages/supplier/SupplierInventory";
 import SupplierOrders from "./pages/supplier/SupplierOrders";
 import SupplierOrdersPending from "./pages/supplier/SupplierOrdersPending";
@@ -62,7 +63,8 @@ import VNPaySuccess from "./pages/payment/VNPaySuccess";
 import { useAuthStore } from "./store/authStore";
 import { useCartStore } from "./store/cartStore";
 import { ConfirmProvider } from "material-ui-confirm";
-
+import MaterialList from "./pages/material/MaterialList";
+import WalletWithdraw from "./pages/admin/WalletWithdraw";
 //import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -195,6 +197,7 @@ function App() {
         <Route path="/detail/:id/:designerId" element={<DesignDetail />} />
         <Route path="/brand/:id" element={<DesingBrandProfile />} />
         <Route path="/material/:id" element={<MaterialDetailPage />} />
+        <Route path="/materials" element={<MaterialList />} />
 
         {/* ===== APPLICATION ROUTES ===== */}
         <Route path="/businessinfor" element={<BusinessInfor />} />
@@ -302,6 +305,7 @@ function App() {
           }
         >
           <Route index element={<SupplierDashboardHome />} />
+          <Route path="material-types" element={<SupplierMaterialTypes />} />
           <Route path="materials" element={<SupplierMaterials />} />
           <Route path="materials/add" element={<AddMaterial />} />
           <Route path="materials/inventory" element={<SupplierInventory />} />
@@ -339,6 +343,7 @@ function App() {
           <Route path="material-types" element={<MaterialTypesAll />} />
           <Route path="materials" element={<MaterialsAll />} />
           <Route path="materials/pending" element={<MaterialsPending />} />
+          <Route path="walletWithdraw" element={<WalletWithdraw />} />
           <Route path="materials/approved" element={<MaterialsApproved />} />
           <Route path="analytics/inventory" element={<InventoryReport />} />
         </Route>

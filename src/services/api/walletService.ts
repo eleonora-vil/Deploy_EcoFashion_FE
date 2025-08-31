@@ -1,4 +1,8 @@
-import apiClient from "./baseApi";
+import apiClient, {
+  BaseApiResponse,
+  handleApiError,
+  handleApiResponse,
+} from "./baseApi";
 
 export interface Wallet {
   walletId: number;
@@ -26,6 +30,11 @@ export interface WalletTransaction {
   status: "Pending" | "Success" | "Fail";
   orderId?: number;
   orderGroupId?: string;
+  // 🔹 Gợi ý thêm nếu backend có
+  success?: boolean;
+  updatedAt?: string; // khi trạng thái thay đổi
+  referenceCode?: string; // mã tham chiếu giao dịch
+  errorMessage?: string; // nếu giao dịch fail có lý do
 }
 
 export interface DepositRequest {
@@ -47,6 +56,18 @@ export interface WalletSummary {
     spent: number;
     net: number;
   };
+}
+
+export interface WalletWithdrawRequest {
+  transactionId: number;
+  name: string;
+  amount: number;
+  balanceBefore: number;
+  balanceAfter: number;
+  type: string;
+  status: string;
+  description: string;
+  createdAt: string;
 }
 
 export const walletService = {
@@ -401,6 +422,18 @@ export const walletService = {
         isOrderRelated: true,
         detailedDescription: transaction.description,
       };
+    }
+  },
+
+  // Get withdraw request
+  getWalletWithdrawRequest: async (): Promise<WalletWithdrawRequest[]> => {
+    try {
+      const response = await apiClient.get<
+        BaseApiResponse<WalletWithdrawRequest[]>
+      >(`/wallet/withdrawal-requests`);
+      return handleApiResponse(response);
+    } catch (error) {
+      return handleApiError(error);
     }
   },
 };

@@ -166,9 +166,7 @@ export default function DesingBrandProfile() {
         const designerData = await DesignerService.getDesignerPublicProfile(id);
         setDesigner(designerData);
         if (designerData) {
-          const total = await DesignService.getAllDesignByDesigner(
-            designerData.designerId
-          );
+          const total = await DesignService.getAllDesignByDesigner();
           setTotalPage(Math.ceil(total.length / pageSize));
           const data = await DesignService.getAllDesignByDesignerPagination(
             designerData.designerId,

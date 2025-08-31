@@ -12,6 +12,7 @@ import { PlusIcon, UploadIcon, SaveIcon, CancelIcon } from '../../assets/icons/i
 import { ApiError } from '../../services/api/baseApi';
 import { MapRegionPicker } from '../../components/materials/MapRegionPicker';
 
+
 // Toast notification component
 const Toast: React.FC<{ message: string; type: 'success' | 'error' | 'info'; onClose: () => void }> = ({ message, type, onClose }) => {
   React.useEffect(() => {
@@ -21,11 +22,13 @@ const Toast: React.FC<{ message: string; type: 'success' | 'error' | 'info'; onC
     return () => clearTimeout(timer);
   }, [onClose]);
 
+
   const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
   const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
 
+
   return (
-    <div 
+    <div
       className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white ${bgColor} min-w-80 max-w-md transform transition-all duration-300 ease-in-out`}
       style={{
         animation: 'slideIn 0.3s ease-out',
@@ -47,6 +50,7 @@ const Toast: React.FC<{ message: string; type: 'success' | 'error' | 'info'; onC
   );
 };
 
+
 // Material Type Selector Component with Images
 const MaterialTypeSelector: React.FC<{
   materialTypes: any[];
@@ -56,21 +60,21 @@ const MaterialTypeSelector: React.FC<{
 }> = ({ materialTypes, selectedTypeId, onSelect, error }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  
   const selectedType = materialTypes.find(type => type.typeId === selectedTypeId);
-  
 
-  
+
   const filteredTypes = materialTypes.filter(type =>
     type.typeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (type.category && type.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
 
   const handleSelect = (typeId: number) => {
     onSelect(typeId);
     setIsOpen(false);
     setSearchTerm('');
   };
+
 
   return (
     <div className="relative">
@@ -105,6 +109,7 @@ const MaterialTypeSelector: React.FC<{
         </svg>
       </div>
 
+
       {/* Dropdown Menu */}
       {isOpen && (
         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-hidden">
@@ -125,6 +130,7 @@ const MaterialTypeSelector: React.FC<{
             </div>
           </div>
 
+
           {/* Options List */}
           <div className="max-h-60 overflow-y-auto">
             {filteredTypes.length > 0 ? (
@@ -132,9 +138,8 @@ const MaterialTypeSelector: React.FC<{
                 <div
                   key={type.typeId}
                   onClick={() => handleSelect(type.typeId)}
-                  className={`flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer transition-colors ${
-                    selectedTypeId === type.typeId ? 'bg-brand-50 border-r-2 border-brand-500' : ''
-                  }`}
+                  className={`flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer transition-colors ${selectedTypeId === type.typeId ? 'bg-brand-50 border-r-2 border-brand-500' : ''
+                    }`}
                 >
                   <img
                     src={type.imageUrl || 'https://res.cloudinary.com/dguz8gz6s/image/upload/v1754826927/organic-coton_b9zo4y.webp'}
@@ -173,10 +178,12 @@ const MaterialTypeSelector: React.FC<{
         </div>
       )}
 
+
       {/* Error Message */}
       {error && (
         <p className="form-error text-xs text-red-500 mt-1">{error}</p>
       )}
+
 
       {/* Click Outside Handler */}
       {isOpen && (
@@ -188,6 +195,7 @@ const MaterialTypeSelector: React.FC<{
     </div>
   );
 };
+
 
 // Sustainability certification mapping with backend IDs
 // NOTE: CriterionId 1-5 are reserved for core metrics (Carbon, Water, Waste, Organic, Transport)
@@ -213,8 +221,10 @@ const SUSTAINABILITY_CERTIFICATIONS = {
   'RECYCLED CLAIM': { criterionId: 4, tier: 3 },
 };
 
+
 type SustainabilityCertification = keyof typeof SUSTAINABILITY_CERTIFICATIONS;
 type SustainabilityCriterion = { criterionId: number; value: number };
+
 
 const AddMaterial: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
@@ -224,21 +234,19 @@ const AddMaterial: React.FC = () => {
   const [isLocked, setIsLocked] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [selectedCertifications, setSelectedCertifications] = useState<Set<SustainabilityCertification>>(new Set());
-  const [transportTooltip, setTransportTooltip] = useState<{distance: number; method: string; description: string} | null>(null);
+  const [transportTooltip, setTransportTooltip] = useState<{ distance: number; method: string; description: string } | null>(null);
   const [availableTransportMethods, setAvailableTransportMethods] = useState<any[]>([]);
   const supplierId = useAuthStore((s) => s.supplierProfile?.supplierId);
   const loadUserProfile = useAuthStore((s) => s.loadUserProfile);
-  
   // React Query hooks for data fetching
   const { data: materialTypes = [], isLoading: isLoadingTypes, error: typesError } = useMaterialTypes();
   const { data: countries = [], isLoading: isLoadingCountries, error: countriesError } = useCountries();
-  
   // Mutation hooks
   const createMaterialMutation = useCreateMaterial();
   const uploadImagesMutation = useUploadMaterialImages();
-  
   const isLoadingData = isLoadingTypes || isLoadingCountries;
   const hasError = typesError || countriesError;
+
 
   const {
     register,
@@ -257,7 +265,7 @@ const AddMaterial: React.FC = () => {
       description: '',
       recycledPercentage: 0,
       quantityAvailable: 1, // Changed from 0 to meet min validation
-      pricePerUnit: 1, // Changed from 0 to meet min validation  
+      pricePerUnit: 1, // Changed from 0 to meet min validation 
       documentationUrl: '',
       carbonFootprint: undefined,
       waterUsage: undefined,
@@ -266,16 +274,17 @@ const AddMaterial: React.FC = () => {
       productionRegion: '',
       manufacturingProcess: '',
       certificationDetails: '',
-      certificationExpiryDate: '',
       transportDistance: null,
       transportMethod: '',
       sustainabilityCriteria: [] as SustainabilityCriterion[],
     },
   });
 
+
   // Watch productionCountry to preview transport details
   const productionCountry = watch('productionCountry');
   const { data: transportPreview, isLoading: isLoadingTransport } = useTransportDetails(productionCountry || null);
+
 
   // Ensure supplierId is synced into form for schema validation (uuid required)
   useEffect(() => {
@@ -284,12 +293,14 @@ const AddMaterial: React.FC = () => {
     }
   }, [supplierId, setValue]);
 
+
   // Load supplier profile if missing (to obtain SupplierId GUID)
   useEffect(() => {
     if (!supplierId) {
-      try { loadUserProfile(); } catch {}
+      try { loadUserProfile(); } catch { }
     }
   }, [supplierId, loadUserProfile]);
+
 
   // Add toast function
   const addToast = (message: string, type: 'success' | 'error' | 'info') => {
@@ -297,16 +308,18 @@ const AddMaterial: React.FC = () => {
     setToasts(prev => [...prev, { id, message, type }]);
   };
 
+
   // Remove toast function
   const removeToast = (id: string) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   };
 
+
   // Lock form for 5 minutes after successful submission
   const lockForm = () => {
     setIsLocked(true);
     setCountdown(300); // 5 minutes = 300 seconds
-    
+
     const timer = setInterval(() => {
       setCountdown(prev => {
         if (prev <= 1) {
@@ -319,6 +332,7 @@ const AddMaterial: React.FC = () => {
     }, 1000);
   };
 
+
   // Format countdown time
   const formatCountdown = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -326,35 +340,37 @@ const AddMaterial: React.FC = () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+
   // Professional certification management
   const handleCertificationToggle = (certification: SustainabilityCertification) => {
     const newSelectedCertifications = new Set(selectedCertifications);
-    
+
     if (newSelectedCertifications.has(certification)) {
       newSelectedCertifications.delete(certification);
     } else {
       newSelectedCertifications.add(certification);
     }
-    
+
     setSelectedCertifications(newSelectedCertifications);
-    
+
     // Simple binary logic: Has certification = 100, No certification = 0
     const hasCertification = newSelectedCertifications.size > 0;
     const certificationScore = hasCertification ? 100 : 0;
-    
+
     // Send ONLY ONE entry for "Organic Certification" (CriterionId: 4) with binary score
     const sustainabilityCriteria: SustainabilityCriterion[] = hasCertification ? [{
       criterionId: 4, // Organic Certification from seeder
       value: 100 // 100 = has certification, 0 = no certification
     }] : [];
-    
+
     setValue('sustainabilityCriteria', sustainabilityCriteria);
-    
+
     // ALSO set certificationDetails string for backend business logic
     // Backend checks certificationDetails string for keywords like "GOTS", "CRADLE TO CRADLE", etc.
     const certificationNames = Array.from(newSelectedCertifications).join(', ');
     setValue('certificationDetails', certificationNames || '');
   };
+
 
   // Get tier-specific certifications for organized display
   const getCertificationsByTier = (tier: number): SustainabilityCertification[] => {
@@ -363,6 +379,7 @@ const AddMaterial: React.FC = () => {
     ) as SustainabilityCertification[];
   };
 
+
   // Fetch transport details when country changes
   const fetchTransportDetails = async (country: string) => {
     if (!country) {
@@ -370,6 +387,7 @@ const AddMaterial: React.FC = () => {
       setAvailableTransportMethods([]);
       return;
     }
+
 
     try {
       // Fetch transport calculation details
@@ -381,11 +399,12 @@ const AddMaterial: React.FC = () => {
           method: transportData.method,
           description: transportData.description
         });
-        
+
         // Auto-fill recommended values
         setValue('transportDistance', transportData.distance);
         setValue('transportMethod', transportData.method);
       }
+
 
       // Fetch available transport methods
       const methodsResponse = await fetch(`/api/Material/GetAvailableTransportMethods?country=${encodeURIComponent(country)}`);
@@ -399,29 +418,31 @@ const AddMaterial: React.FC = () => {
     }
   };
 
+
   // Handle country selection change
   const handleCountryChange = (selectedCountry: string) => {
     setValue('productionCountry', selectedCountry);
     fetchTransportDetails(selectedCountry);
   };
 
+
   const onSubmit: SubmitHandler<MaterialCreationFormRequest> = async (data) => {
     if (isSubmitting) return; // Prevent spam
     // Backend will override SupplierId from claims; allow submit even if supplierId chưa load
-    
+
     setIsSubmitting(true);
-    
+
     try {
       // Add delay to prevent spam
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // Check authentication status
       const token = localStorage.getItem('authToken');
       if (!token) {
         addToast('Vui lòng đăng nhập để tạo vật liệu', 'error');
         return;
       }
-      
+
       // Ensure supplierId present
       const supplierGuid = supplierId ?? '';
       const payload: MaterialCreationFormRequest = {
@@ -433,50 +454,54 @@ const AddMaterial: React.FC = () => {
         organicCertificationType: null,
         qualityStandards: null,
         isAvailable: false, // Backend will override to false for new materials
-        // Ensure date format is correct
-        certificationExpiryDate: data.certificationExpiryDate || null,
+        // Add default certificationExpiryDate +30 days from now
+        certificationExpiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        //Add default documentationUrl
+        documentationUrl: "https://plus.unsplash.com/premium_photo-1737073520175-b3303a6e1e76?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         // Ensure sustainabilityCriteria is an array
         sustainabilityCriteria: data.sustainabilityCriteria || [],
         // Keep transport fields from form data (if any) - backend will handle auto-calculation or override
         transportDistance: data.transportDistance,
         transportMethod: data.transportMethod,
       };
-      
+
       addToast('Đang tạo vật liệu mới...', 'info');
 
+
       const creation = await createMaterialMutation.mutateAsync(payload);
-      
+
       addToast('Vật liệu đã được tạo thành công!', 'success');
+
 
       // Upload images if any
       if (uploadedFiles.length > 0) {
         try {
           addToast('Đang tải lên hình ảnh...', 'info');
-          
+
           await uploadImagesMutation.mutateAsync({
             materialId: creation.materialId,
             files: uploadedFiles,
           });
-          
+
           addToast(`${uploadedFiles.length} hình ảnh đã được tải lên thành công!`, 'success');
         } catch (e) {
           console.warn('Upload images failed:', e);
           addToast('Lỗi tải lên hình ảnh. Vật liệu đã được tạo nhưng không có hình ảnh.', 'error');
         }
       }
-      
+
       // Final success message
       setTimeout(() => {
         addToast('Vật liệu của bạn sẽ được admin duyệt trước khi lên kệ hàng.', 'info');
       }, 1000);
-      
+
       // Lock form and reset after successful submission
       lockForm();
       setTimeout(() => {
         reset();
         setUploadedFiles([]);
       }, 2000);
-      
+
     } catch (error) {
       console.error('Error creating material:', error);
       if (error instanceof ApiError) {
@@ -496,8 +521,10 @@ const AddMaterial: React.FC = () => {
     }
   };
 
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
+
 
     // Filter only image files
     const imageFiles = files.filter((f) => f.type.startsWith('image/'));
@@ -506,29 +533,36 @@ const AddMaterial: React.FC = () => {
       addToast(`${nonImageCount} tệp không phải hình ảnh đã bị bỏ qua.`, 'info');
     }
 
+
     setUploadedFiles((prev) => {
       if (prev.length >= 3) {
         addToast('Bạn chỉ có thể tải tối đa 3 ảnh.', 'error');
         return prev;
       }
 
+
       const remainingSlots = 3 - prev.length;
       const filesToAdd = imageFiles.slice(0, remainingSlots);
+
 
       if (imageFiles.length > remainingSlots) {
         addToast(`Chỉ có thể thêm ${remainingSlots} ảnh nữa (tối đa 3).`, 'error');
       }
 
+
       return [...prev, ...filesToAdd];
     });
+
 
     // Reset input value to allow re-selecting the same file if needed
     event.currentTarget.value = '';
   };
 
+
   const removeFile = (index: number) => {
     setUploadedFiles(prev => prev.filter((_, i) => i !== index));
   };
+
 
   // Generate and cleanup preview URLs when uploadedFiles changes
   useEffect(() => {
@@ -539,20 +573,21 @@ const AddMaterial: React.FC = () => {
     };
   }, [uploadedFiles]);
 
+
   return (
     <>
       <style>{`
-        @keyframes slideIn {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-      `}</style>
+       @keyframes slideIn {
+         from {
+           transform: translateX(100%);
+           opacity: 0;
+         }
+         to {
+           transform: translateX(0);
+           opacity: 1;
+         }
+       }
+     `}</style>
       <div className="dashboard-main">
         <div className="dashboard-container">
           <div className="dashboard-content">
@@ -572,7 +607,7 @@ const AddMaterial: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                  
+
                   {/* Countdown Lock Notification */}
                   {isLocked && countdown > 0 && (
                     <div className="mt-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
@@ -582,7 +617,7 @@ const AddMaterial: React.FC = () => {
                         </svg>
                         <p className="text-sm text-orange-800">
                           <span className="font-medium">Tạm khóa:</span> Vui lòng chờ{' '}
-                          <span className="font-bold text-orange-900">{formatCountdown(countdown)}</span> 
+                          <span className="font-bold text-orange-900">{formatCountdown(countdown)}</span>
                           {' '}trước khi thêm vật liệu mới
                         </p>
                       </div>
@@ -601,6 +636,7 @@ const AddMaterial: React.FC = () => {
               </div>
             </div>
 
+
             {/* Loading State */}
             {isLoadingData && (
               <div className="dashboard-card">
@@ -610,6 +646,7 @@ const AddMaterial: React.FC = () => {
                 </div>
               </div>
             )}
+
 
             {/* Error State */}
             {hasError && !isLoadingData && (
@@ -631,6 +668,7 @@ const AddMaterial: React.FC = () => {
                 </div>
               </div>
             )}
+
 
             {/* Form */}
             {!isLoadingData && !hasError && (
@@ -659,6 +697,7 @@ const AddMaterial: React.FC = () => {
                         )}
                       </div>
 
+
                       {/* Material Type with Custom Dropdown */}
                       <div className="form-group">
                         <label className="form-label font-semibold text-gray-800">Loại Vật Liệu <span className="text-red-500">*</span></label>
@@ -669,6 +708,7 @@ const AddMaterial: React.FC = () => {
                           error={errors.typeId?.message}
                         />
                       </div>
+
 
                       {/* Description */}
                       <div className="form-group md:col-span-2">
@@ -684,6 +724,7 @@ const AddMaterial: React.FC = () => {
                         )}
                       </div>
 
+
                       {/* Price Per Unit */}
                       <div className="form-group">
                         <label className="form-label font-semibold text-gray-800">Giá (VNĐ/mét) <span className="text-red-500">*</span></label>
@@ -693,7 +734,7 @@ const AddMaterial: React.FC = () => {
                             type="number"
                             {...register('pricePerUnit', { valueAsNumber: true })}
                             className={`form-input pl-8 ${errors.pricePerUnit ? 'form-input-error' : ''} rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500`}
-                            placeholder="VD: 50 = 50.000 VNĐ/mét"
+                            placeholder="VD: 50000 = 50 000 VNĐ/mét"
                             min="0"
                             step="0.01"
                           />
@@ -703,6 +744,7 @@ const AddMaterial: React.FC = () => {
                         )}
                       </div>
 
+
                       {/* Unit */}
                       <div className="form-group">
                         <label className="form-label font-semibold text-gray-800">Đơn Vị <span className="text-red-500">*</span></label>
@@ -711,19 +753,20 @@ const AddMaterial: React.FC = () => {
                             type="text"
                             disabled
                             className={`form-input rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500`}
-                            value="000 VNĐ /mét"
+                            value=" VNĐ/mét"
                           />
                         </div>
                       </div>
-                      
+
                     </div>
                   </div>
                 </div>
 
+
                 {/* Sustainability Metrics */}
                 <div className="dashboard-card mb-8 rounded-xl shadow-md border border-gray-200 bg-white dark:bg-gray-900">
                   <div className="card-header px-6 pt-6 pb-2">
-                    <h3 className="card-title text-lg font-bold text-brand-700">Chỉ Số Bền Vững</h3>
+                    <h3 className="card-title text-lg font-bold text-brand-700">Chỉ Số Bền Vững (3/5 Tiêu Chí Đánh Giá Sustainability Score)</h3>
                     <p className="card-subtitle text-sm text-gray-500">Các chỉ số đánh giá tính bền vững</p>
                   </div>
                   <div className="card-body px-6 pb-6 pt-2">
@@ -744,6 +787,7 @@ const AddMaterial: React.FC = () => {
                         )}
                       </div>
 
+
                       {/* Water Usage */}
                       <div className="form-group">
                         <label className="form-label font-semibold text-gray-800">Water Usage (lít/mét) <span className="text-red-500">*</span></label>
@@ -759,6 +803,7 @@ const AddMaterial: React.FC = () => {
                           <p className="form-error text-xs text-red-500 mt-1">{errors.waterUsage.message}</p>
                         )}
                       </div>
+
 
                       {/* Waste Diverted */}
                       <div className="form-group">
@@ -779,10 +824,11 @@ const AddMaterial: React.FC = () => {
                   </div>
                 </div>
 
+
                 {/* Production & Certification */}
                 <div className="dashboard-card mb-8 rounded-xl shadow-md border border-gray-200 bg-white dark:bg-gray-900">
                   <div className="card-header px-6 pt-6 pb-2">
-                    <h3 className="card-title text-lg font-bold text-brand-700">Sản Xuất & Chứng Chỉ</h3>
+                    <h3 className="card-title text-lg font-bold text-brand-700">Sản Xuất & Chứng Chỉ (2/5 Tiêu Chí Đánh Giá Sustainability Score)</h3>
                     <p className="card-subtitle text-sm text-gray-500">Thông tin sản xuất và chứng chỉ bền vững có ảnh hưởng đến việc đánh giá tính bền vững của vật liệu</p>
                   </div>
                   <div className="card-body px-6 pb-6 pt-2">
@@ -821,7 +867,7 @@ const AddMaterial: React.FC = () => {
                         {errors.productionCountry && (
                           <p className="form-error">{errors.productionCountry.message}</p>
                         )}
-                        
+
                         {/* Transport preview info */}
                         {transportTooltip && (
                           <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -838,6 +884,7 @@ const AddMaterial: React.FC = () => {
                         )}
                       </div>
 
+
                       {/* Dynamic MapRegionPicker for all supported countries */}
                       {watch('productionCountry') && (
                         <div className="form-group md:col-span-2 my-6">
@@ -848,6 +895,7 @@ const AddMaterial: React.FC = () => {
                           />
                         </div>
                       )}
+
 
                       {/* Production Region - Manual Input */}
                       <div className="form-group">
@@ -864,8 +912,8 @@ const AddMaterial: React.FC = () => {
                           {...register('productionRegion')}
                           className={`form-input ${errors.productionRegion ? 'form-input-error' : ''} ${watch('productionRegion') ? 'border-green-300 bg-green-50' : ''}`}
                           placeholder={
-                            watch('productionCountry') 
-                              ? "Chọn từ bản đồ/danh sách bên trên hoặc nhập thủ công" 
+                            watch('productionCountry')
+                              ? "Chọn từ bản đồ/danh sách bên trên hoặc nhập thủ công"
                               : "Nhập khu vực sản xuất"
                           }
                         />
@@ -878,6 +926,7 @@ const AddMaterial: React.FC = () => {
                           </p>
                         )}
                       </div>
+
 
                       {/* Manufacturing Process */}
                       <div className="form-group">
@@ -897,7 +946,7 @@ const AddMaterial: React.FC = () => {
                         {errors.manufacturingProcess && (
                           <p className="form-error text-xs text-red-500 mt-1">{errors.manufacturingProcess.message}</p>
                         )}
-                        
+
                         {watch('manufacturingProcess') === 'custom' && (
                           <input
                             type="text"
@@ -909,7 +958,9 @@ const AddMaterial: React.FC = () => {
                         )}
                       </div>
 
-                     
+
+
+
 
                       {/* Transport Method Override */}
                       <div className="form-group">
@@ -923,12 +974,12 @@ const AddMaterial: React.FC = () => {
                           disabled={!watch('productionCountry')}
                         >
                           <option value="">
-                            {watch('productionCountry') 
+                            {watch('productionCountry')
                               ? `Mặc định (${transportTooltip?.method || 'Đang tải...'})`
                               : 'Chọn quốc gia trước'
                             }
                           </option>
-                          
+
                           {/* 4 standard transport methods from backend */}
                           <option value="Sea">🚢 Sea - Vận chuyển bằng tàu biển (Ít carbon nhất)</option>
                           <option value="Land">🚚 Land - Vận chuyển bằng xe tải (Phù hợp cho khoảng cách ngắn)</option>
@@ -938,7 +989,7 @@ const AddMaterial: React.FC = () => {
                         {errors.transportMethod && (
                           <p className="form-error text-xs text-red-500 mt-1">{errors.transportMethod.message}</p>
                         )}
-                        
+
                         {/* Transport method description */}
                         {watch('transportMethod') && (
                           <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
@@ -961,7 +1012,7 @@ const AddMaterial: React.FC = () => {
                             </p>
                           </div>
                         )}
-                        
+
                         {/* Available methods from backend */}
                         {availableTransportMethods.length > 0 && (
                           <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -985,10 +1036,11 @@ const AddMaterial: React.FC = () => {
                         )}
                       </div>
 
+
                       {/* Sustainability Certificates */}
                       <div className="form-group md:col-span-2">
                         <label className="form-label font-semibold text-gray-800 mb-3">Chứng Chỉ Bền Vững <span className="text-red-500">*</span></label>
-                        
+
                         {/* Tier 1: Comprehensive sustainability standards */}
                         <div className="mb-4">
                           <h4 className="text-sm font-medium text-gray-700 mb-2">🏆 Tier 1: Tiêu chuẩn bền vững toàn diện</h4>
@@ -1006,6 +1058,7 @@ const AddMaterial: React.FC = () => {
                             ))}
                           </div>
                         </div>
+
 
                         {/* Tier 2: High-value specialized standards */}
                         <div className="mb-4">
@@ -1025,6 +1078,7 @@ const AddMaterial: React.FC = () => {
                           </div>
                         </div>
 
+
                         {/* Tier 3: Material-specific recycling standards */}
                         <div className="mb-4">
                           <h4 className="text-sm font-medium text-gray-700 mb-2">♻️ Tier 3: Tiêu chuẩn tái chế chuyên biệt</h4>
@@ -1043,6 +1097,7 @@ const AddMaterial: React.FC = () => {
                           </div>
                         </div>
 
+
                         {/* Selected certificates display with binary score */}
                         {selectedCertifications.size > 0 && (
                           <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
@@ -1057,11 +1112,11 @@ const AddMaterial: React.FC = () => {
                             <div className="flex flex-wrap gap-1">
                               {Array.from(selectedCertifications).map((certificationDetails) => {
                                 const { tier } = SUSTAINABILITY_CERTIFICATIONS[certificationDetails];
-                                const tierColor = tier === 1 ? 'bg-yellow-100 text-yellow-800' : 
-                                                tier === 2 ? 'bg-blue-100 text-blue-800' : 
-                                                'bg-gray-100 text-gray-800';
+                                const tierColor = tier === 1 ? 'bg-yellow-100 text-yellow-800' :
+                                  tier === 2 ? 'bg-blue-100 text-blue-800' :
+                                    'bg-gray-100 text-gray-800';
                                 return (
-                                  <span 
+                                  <span
                                     key={`cert-${certificationDetails}`}
                                     className={`inline-block px-2 py-1 ${tierColor} text-xs rounded-full`}
                                     title={`Tier ${tier} certification`}
@@ -1072,63 +1127,22 @@ const AddMaterial: React.FC = () => {
                               })}
                             </div>
                             <p className="text-xs text-green-600 mt-2">
-                              💡 Có chứng chỉ = 100 điểm | Không có chứng chỉ = 0 điểm → Backend logic đơn giản
+                              💡 Có chứng chỉ = 100 điểm | Không có chứng chỉ = 0 điểm | Không có chứng chỉ = 100 điểm (nếu benchmarks yêu cầu)
                             </p>
                           </div>
                         )}
+
 
                         {errors.sustainabilityCriteria && (
                           <p className="form-error text-xs text-red-500 mt-1">{errors.sustainabilityCriteria.message}</p>
                         )}
                       </div>
 
-                     
 
-                       {/* Certification Expiry Date */}
-                       <div className="form-group">
-                        <label className="form-label font-semibold text-gray-800">Ngày Hết Hạn Chứng Chỉ <span className="text-red-500">*</span></label>
-                        <input
-                          type="date"
-                          {...register('certificationExpiryDate')}
-                          className={`form-input ${errors.certificationExpiryDate ? 'form-input-error' : ''} rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500`}
-                        />
-                        {errors.certificationExpiryDate && (
-                          <p className="form-error text-xs text-red-500 mt-1">{errors.certificationExpiryDate.message}</p>
-                        )}
-                      </div>
-
-                      {/* Documentation URL */}
-                      <div className="form-group">
-                        <label className="form-label font-semibold text-gray-800">URL Chứng Chỉ (optional)</label>
-                        <select
-                          {...register('documentationUrl')}
-                          className={`form-select ${errors.documentationUrl ? 'form-select-error' : ''} rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500`}
-                        >
-                          <option value="">Chọn trang web chứng chỉ</option>
-                          <option value="https://global-standard.org/">https://global-standard.org/ (GOTS - Global Organic Textile Standard)</option>
-                          <option value="https://www.c2ccertified.org/">https://www.c2ccertified.org/ (Cradle to Cradle Certified)</option>
-                          <option value="https://www.usda.gov/topics/organic">https://www.usda.gov/topics/organic (USDA Organic)</option>
-                          <option value="https://www.bluesign.com/">https://www.bluesign.com/ (BLUESIGN System)</option>
-                          <option value="https://textileexchange.org/standards/organic-content-standard/">https://textileexchange.org/standards/organic-content-standard/ (OCS)</option>
-                          <option value="custom">Khác (nhập thủ công)</option>
-                        </select>
-                        {errors.documentationUrl && (
-                          <p className="form-error text-xs text-red-500 mt-1">{errors.documentationUrl.message}</p>
-                        )}
-                        
-                        {watch('documentationUrl') === 'custom' && (
-                          <input
-                            type="url"
-                            {...register('documentationUrl')}
-                            className={`form-input mt-2 ${errors.documentationUrl ? 'form-input-error' : ''} rounded-lg border-gray-300 focus:border-brand-500 focus:ring-brand-500`}
-                            placeholder="https://example.com/documentation"
-                            onChange={(e) => setValue('documentationUrl', e.target.value)}
-                          />
-                        )}
-                      </div>
                     </div>
                   </div>
                 </div>
+
 
                 {/* File Upload */}
                 <div className="dashboard-card mb-8 rounded-xl shadow-md border border-gray-200 bg-white dark:bg-gray-900">
@@ -1170,6 +1184,7 @@ const AddMaterial: React.FC = () => {
                       </label>
                     </div>
 
+
                     {/* Uploaded Images Preview Grid */}
                     {imagePreviews.length > 0 && (
                       <div className="mt-6">
@@ -1202,8 +1217,10 @@ const AddMaterial: React.FC = () => {
                   </div>
                 </div>
 
+
                 {/* Số lượng đề xuất nhập kho lần đầu */}
-                
+
+
 
                 {/* Form Actions */}
                 <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
@@ -1245,7 +1262,7 @@ const AddMaterial: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Toast Notifications */}
       {toasts.map(toast => (
         <Toast key={toast.id} {...toast} onClose={() => removeToast(toast.id)} />
@@ -1254,4 +1271,8 @@ const AddMaterial: React.FC = () => {
   );
 };
 
+
 export default AddMaterial;
+
+
+

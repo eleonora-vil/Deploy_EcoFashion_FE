@@ -495,25 +495,22 @@ const MaterialCard: React.FC<MaterialCardProps> = ({
                   icon={<LocalShipping sx={{ fontSize: 16 }} />}
                 />
               </Box>
-              {/* Sustainability highlights */}
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 1 }}>
-                {material.sustainabilityCriteria && material.sustainabilityCriteria.length > 0 && (
-                  <Chip
-                    size="small"
-                    label={`${material.sustainabilityCriteria.length} Criteria`}
-                    variant="outlined"
-                    sx={{ fontSize: "0.6rem", height: "20px" }}
-                  />
-                )}
-                {material.benchmarks && material.benchmarks.length > 0 && (
-                  <Chip
-                    size="small"
-                    label={`${material.benchmarks.length} Benchmarks`}
-                    variant="outlined"
-                    sx={{ fontSize: "0.6rem", height: "20px" }}
-                  />
-                )}
-              </Box>
+{/* Sustainability highlights */}
+<Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 1 }}>
+               <Chip
+                 size="small"
+                 label="5 Criteria"
+                 variant="outlined"
+                 sx={{ fontSize: "0.6rem", height: "20px" }}
+               />
+               <Chip
+                 size="small"
+                 label="5 Benchmarks"
+                 variant="outlined"
+                 sx={{ fontSize: "0.6rem", height: "20px" }}
+               />
+             </Box>
+
             </Box>
           </Box>
         </CardContent>

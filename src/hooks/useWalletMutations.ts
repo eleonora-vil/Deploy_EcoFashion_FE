@@ -34,7 +34,6 @@ export const useRequestWithdraw = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.wallet });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.walletSummary });
-      toast.success("Yêu cầu rút tiền đã được gửi thành công");
     },
     onError: (error: any) => {
       toast.error(

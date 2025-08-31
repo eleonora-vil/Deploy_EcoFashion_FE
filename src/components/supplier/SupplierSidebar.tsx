@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSupplierSidebar } from '../../services/supplier/SupplierSidebarContext';
-import { 
-  GridIcon, 
-  BoxCubeIcon, 
-  ListIcon, 
-  BoxIcon, 
-  PieChartIcon, 
-  UserCircleIcon, 
+import {
+  GridIcon,
+  BoxCubeIcon,
+  ListIcon,
+  BoxIcon,
+  PieChartIcon,
+  UserCircleIcon,
   PlugInIcon,
   ChevronDownIcon,
   ChevronUpIcon,
@@ -35,6 +35,7 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Tất Cả Vật Liệu", path: "/supplier/dashboard/materials", pro: false },
       { name: "Thêm Vật Liệu", path: "/supplier/dashboard/materials/add", pro: false, new: true },
+      { name: "Các Loại Vải", path: "/supplier/dashboard/material-types", pro: false },
       { name: "Quản Lý Kho", path: "/supplier/dashboard/materials/inventory", pro: false },
     ],
   },
@@ -148,11 +149,10 @@ const SupplierSidebar: React.FC = () => {
               <div>
                 <button
                   onClick={() => handleSubmenuToggle(index, menuType)}
-                  className={`flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    isSubmenuOpen || hasActiveSubItem
-                      ? "text-brand-500 bg-brand-50 dark:bg-brand-900/20 dark:text-brand-400"
-                      : "text-gray-700 hover:text-brand-500 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-brand-400 dark:hover:bg-gray-800"
-                  }`}
+                  className={`flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-lg transition-colors ${isSubmenuOpen || hasActiveSubItem
+                    ? "text-brand-500 bg-brand-50 dark:bg-brand-900/20 dark:text-brand-400"
+                    : "text-gray-700 hover:text-brand-500 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-brand-400 dark:hover:bg-gray-800"
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <span className="flex-shrink-0">{nav.icon}</span>
@@ -174,11 +174,10 @@ const SupplierSidebar: React.FC = () => {
                       <li key={subItem.path}>
                         <Link
                           to={subItem.path}
-                          className={`flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors ${
-                            isActive(subItem.path)
-                              ? "text-brand-500 bg-brand-50 dark:bg-brand-900/20 dark:text-brand-400"
-                              : "text-gray-600 hover:text-brand-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-brand-400 dark:hover:bg-gray-800"
-                          }`}
+                          className={`flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors ${isActive(subItem.path)
+                            ? "text-brand-500 bg-brand-50 dark:bg-brand-900/20 dark:text-brand-400"
+                            : "text-gray-600 hover:text-brand-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-brand-400 dark:hover:bg-gray-800"
+                            }`}
                         >
                           <div className="flex items-center gap-2">
                             <span className="truncate">{subItem.name}</span>
@@ -207,11 +206,10 @@ const SupplierSidebar: React.FC = () => {
             ) : (
               <Link
                 to={nav.path || "#"}
-                className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  isActiveItem
-                    ? "text-brand-500 bg-brand-50 dark:bg-brand-900/20 dark:text-brand-400"
-                    : "text-gray-700 hover:text-brand-500 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-brand-400 dark:hover:bg-gray-800"
-                }`}
+                className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${isActiveItem
+                  ? "text-brand-500 bg-brand-50 dark:bg-brand-900/20 dark:text-brand-400"
+                  : "text-gray-700 hover:text-brand-500 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-brand-400 dark:hover:bg-gray-800"
+                  }`}
               >
                 <span className="flex-shrink-0">{nav.icon}</span>
                 <span className="truncate">{nav.name}</span>
@@ -226,11 +224,9 @@ const SupplierSidebar: React.FC = () => {
   return (
     <>
       <aside
-        className={`fixed left-0 top-0 z-40 h-screen transition-transform ${
-          isMobileOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 ${
-          isExpanded || isHovered ? "w-[290px]" : "w-[90px]"
-        } bg-white border-r border-gray-200 dark:bg-gray-900 dark:border-gray-800`}
+        className={`fixed left-0 top-0 z-40 h-screen transition-transform ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0 ${isExpanded || isHovered ? "w-[290px]" : "w-[90px]"
+          } bg-white border-r border-gray-200 dark:bg-gray-900 dark:border-gray-800`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >

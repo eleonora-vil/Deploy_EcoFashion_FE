@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   CreditCardIcon,
@@ -200,7 +200,7 @@ const WithdrawalModal: React.FC<{
       <div className="bg-white rounded-xl max-w-md w-full p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900">
-            Rút tiền khỏi ví
+            Tạo yêu cầu rút tiền
           </h2>
           <button
             onClick={onClose}
@@ -231,7 +231,7 @@ const WithdrawalModal: React.FC<{
             </p>
           </div>
 
-          <div className="mb-4">
+          <div className="mb-10">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Số tiền nhanh
             </label>
@@ -248,20 +248,6 @@ const WithdrawalModal: React.FC<{
               ))}
             </div>
           </div>
-
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ghi chú (không bắt buộc)
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Nhập ghi chú..."
-              rows={3}
-            />
-          </div>
-
           <div className="flex gap-3">
             <button
               type="button"
@@ -425,6 +411,14 @@ const WalletDashboardTailwind: React.FC = () => {
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawalModal, setShowwithdrawalModal] = useState(false);
 
+  useEffect(() => {
+    const redirectUrl = localStorage.getItem("walletRedirect");
+    if (redirectUrl) {
+      localStorage.removeItem("walletRedirect");
+      window.location.href = redirectUrl; // quay về wallet
+    }
+  }, []);
+
   const { data: walletData, isLoading, error, refetch } = useWalletSummary();
   const { mutateAsync: deposit, isPending: isDepositLoading } =
     useInitiateDeposit();
@@ -454,19 +448,21 @@ const WalletDashboardTailwind: React.FC = () => {
   const handleWithdrawal = async (amount: number, description?: string) => {
     try {
       const result = await withdrawal({ amount, description });
-      const accept = await respondWithdrawal(result?.id);
-      const paymentUrl =
-        (accept as any)?.paymentUrl || (accept as any)?.PaymentUrl;
+      // const accept = await respondWithdrawal(result?.id);
+      // const paymentUrl =
+      //   (accept as any)?.paymentUrl || (accept as any)?.PaymentUrl;
 
-      if (paymentUrl) {
-        window.location.href = paymentUrl;
+      if (result.success) {
+        // window.location.href = paymentUrl;
+        toast.success("Xin chờ duyệt!");
+        setShowwithdrawalModal(false);
       } else {
-        toast.error("Không thể tạo liên kết thanh toán");
+        toast.error(result.errorMessage);
       }
     } catch (error) {
-      console.error("Deposit error:", error);
+      toast.error(error);
     } finally {
-      setShowDepositModal(false);
+      setShowwithdrawalModal(false);
     }
   };
 
