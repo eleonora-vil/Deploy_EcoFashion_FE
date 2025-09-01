@@ -166,13 +166,14 @@ export default function DesingBrandProfile() {
         const designerData = await DesignerService.getDesignerPublicProfile(id);
         setDesigner(designerData);
         if (designerData) {
-          const total = await DesignService.getAllDesignByDesigner();
-          setTotalPage(Math.ceil(total.length / pageSize));
           const data = await DesignService.getAllDesignByDesignerPagination(
             designerData.designerId,
             currentPage,
             pageSize
           );
+          // Dynamic total pages: if we received a full page, tentatively allow next page
+          const inferredTotalPages = data.length === pageSize ? currentPage + 1 : currentPage;
+          setTotalPage(inferredTotalPages);
           // Count design types
           const counts: Record<string, number> = {};
           data.forEach((design: any) => {
@@ -191,7 +192,7 @@ export default function DesingBrandProfile() {
       }
     };
     fetchDesigner();
-  }, [id]);
+  }, [id, currentPage]);
 
   // filter type
   const dynamicTypeFilterOptions = Object.entries(typeCounts).map(

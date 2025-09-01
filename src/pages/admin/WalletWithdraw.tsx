@@ -160,7 +160,7 @@ const WalletWithdraw: React.FC = () => {
                                   : "from-red-400 to-red-600 text-white"
                               }`}
                             >
-                              {t.status || "N/A"}
+                              {(t.status === "Pending" && "Chờ Xử Lí") || "N/A"}
                             </span>
                           </div>
                         </div>

@@ -61,38 +61,10 @@ export const ordersService = {
  },
 
 
- // New methods for designer order management
+ // Designer order management: backend merges supplier/designer under seller endpoint
  getOrdersByDesigner: async (designerId: string) => {
-   try {
-     // Try the specific designer endpoint first
-     const { data } = await apiClient.get(`/order/by-designer/${designerId}`);
-     return (data?.result || data) as OrderModel[];
-   } catch (error: any) {
-     // If designer endpoint doesn't exist (404), try using seller endpoint
-     if (error.response?.status === 404) {
-       console.log('Designer endpoint not available, trying seller endpoint...');
-      
-       try {
-         // Try using the seller endpoint with designerId
-         const { data } = await apiClient.get(`/order/by-seller/${designerId}`);
-         return (data?.result || data) as OrderModel[];
-       } catch (sellerError) {
-         console.log('Seller endpoint also failed, using fallback method...');
-        
-         // Final fallback: Get all orders and filter by designerId
-         const allOrders = await ordersService.getAll();
-         const designerOrders = allOrders.filter(order =>
-           // Try multiple possible field names that might contain designerId
-           (order as any).designerId === designerId ||
-           (order as any).sellerId === designerId ||
-           (order as any).sellerName === designerId
-         );
-        
-         return designerOrders;
-       }
-     }
-     throw error;
-   }
+   const { data } = await apiClient.get(`/order/by-seller/${designerId}`);
+   return (data?.result || data) as OrderModel[];
  },
 
 

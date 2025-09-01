@@ -256,21 +256,22 @@ const Navigation: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isHome]);
 
-
   // Handle click outside user menu
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node)
+      ) {
         if (userMenu.isOpen) {
           userMenu.toggle();
         }
       }
     };
 
-
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [userMenu]);
 
@@ -305,7 +306,7 @@ const Navigation: React.FC = () => {
         if (userRole === "designer") navigate("/designer/profile");
         else if (userRole === "supplier") navigate("/supplier/profile");
         else if (userRole === "admin") navigate("/admin/dashboard");
-        else navigate("/profile");
+        else navigate("/orders");
         break;
       case "designer-dashboard":
         navigate("/designer/dashboard");
@@ -453,10 +454,11 @@ const Navigation: React.FC = () => {
 
   return (
     <nav
-      className={`relative top-0 left-0 z-50 transition-all duration-300 ${scrolled || !isHome
-        ? "bg-white shadow-lg text-gray-900"
-        : "bg-white/5 text-white"
-        }`}
+      className={`relative top-0 left-0 z-50 transition-all duration-300 ${
+        scrolled || !isHome
+          ? "bg-white shadow-lg text-gray-900"
+          : "bg-white/5 text-white"
+      }`}
     >
       <div className="w-full px-2">
         {/* bỏ padding ngang */}
@@ -485,8 +487,9 @@ const Navigation: React.FC = () => {
             <div className="flex items-center flex-nowrap w-auto space-x-5 p-0 m-0 justify-center">
               <Link
                 to="/"
-                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
-                  }`}
+                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
+                  scrolled || !isHome ? "text-gray-900" : "text-white"
+                }`}
               >
                 TRANG CHỦ
               </Link>
@@ -510,17 +513,19 @@ const Navigation: React.FC = () => {
                     setShopMenuOpen(!shopMenuOpen);
                     setShopDropdownVisible(!shopMenuOpen);
                   }}
-                  className={`navbar-link flex items-center space-x-1 uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
-                    }`}
+                  className={`navbar-link flex items-center space-x-1 uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
+                    scrolled || !isHome ? "text-gray-900" : "text-white"
+                  }`}
                 >
                   <span>CỬA HÀNG</span>
                   <ChevronDownIcon />
                 </button>
                 <div
-                  className={`absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-50 transition-opacity duration-500 ${shopDropdownVisible && shopMenuOpen
-                    ? "opacity-100 pointer-events-auto"
-                    : "opacity-0 pointer-events-none"
-                    }`}
+                  className={`absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-50 transition-opacity duration-500 ${
+                    shopDropdownVisible && shopMenuOpen
+                      ? "opacity-100 pointer-events-auto"
+                      : "opacity-0 pointer-events-none"
+                  }`}
                   onMouseEnter={() => {
                     if (shopDropdownTimer.current)
                       clearTimeout(shopDropdownTimer.current);
@@ -577,17 +582,19 @@ const Navigation: React.FC = () => {
                     setExploreMenuOpen(!exploreMenuOpen);
                     setExploreDropdownVisible(!exploreMenuOpen);
                   }}
-                  className={`navbar-link flex items-center space-x-1 uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
-                    }`}
+                  className={`navbar-link flex items-center space-x-1 uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
+                    scrolled || !isHome ? "text-gray-900" : "text-white"
+                  }`}
                 >
                   <span>KHÁM PHÁ</span>
                   <ChevronDownIcon />
                 </button>
                 <div
-                  className={`absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-50 transition-opacity duration-500 ${exploreDropdownVisible && exploreMenuOpen
-                    ? "opacity-100 pointer-events-auto"
-                    : "opacity-0 pointer-events-none"
-                    }`}
+                  className={`absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-50 transition-opacity duration-500 ${
+                    exploreDropdownVisible && exploreMenuOpen
+                      ? "opacity-100 pointer-events-auto"
+                      : "opacity-0 pointer-events-none"
+                  }`}
                   onMouseEnter={() => {
                     if (exploreDropdownTimer.current)
                       clearTimeout(exploreDropdownTimer.current);
@@ -627,24 +634,27 @@ const Navigation: React.FC = () => {
 
               <Link
                 to="/businessinfor"
-                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
-                  }`}
+                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
+                  scrolled || !isHome ? "text-gray-900" : "text-white"
+                }`}
               >
                 THÔNG TIN KINH DOANH
               </Link>
 
               <Link
                 to="/about"
-                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
-                  }`}
+                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
+                  scrolled || !isHome ? "text-gray-900" : "text-white"
+                }`}
               >
                 VỀ CHÚNG TÔI
               </Link>
 
               <Link
                 to="/contact"
-                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
-                  }`}
+                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
+                  scrolled || !isHome ? "text-gray-900" : "text-white"
+                }`}
                 style={{ whiteSpace: "nowrap" }}
               >
                 LIÊN LẠC
@@ -658,8 +668,9 @@ const Navigation: React.FC = () => {
             <CartWithPopup />
             <button
               onClick={() => navigate("/wallet")}
-              className={`p-2 rounded-lg hover:bg-gray-100 transition-colors ${scrolled || !isHome ? "text-gray-700" : "text-white"
-                }`}
+              className={`p-2 rounded-lg hover:bg-gray-100 transition-colors ${
+                scrolled || !isHome ? "text-gray-700" : "text-white"
+              }`}
             >
               <WalletIcon className="w-6 h-6 text-inherit hover:text-green-500 transition duration-200" />
             </button>
@@ -676,22 +687,24 @@ const Navigation: React.FC = () => {
                   />
                   <div className="hidden md:block text-left">
                     <p
-                      className={`text-sm font-medium ${scrolled || !isHome ? "text-gray-900" : "text-white"
-                        }`}
+                      className={`text-sm font-medium ${
+                        scrolled || !isHome ? "text-gray-900" : "text-white"
+                      }`}
                     >
                       {getDisplayName()}
                     </p>
                     <p
-                      className={`text-xs ${scrolled || !isHome ? "text-gray-600" : "text-gray-200"
-                        }`}
+                      className={`text-xs ${
+                        scrolled || !isHome ? "text-gray-600" : "text-gray-200"
+                      }`}
                     >
                       {user.role.toLowerCase() === "supplier"
                         ? "Nhà cung cấp"
                         : user.role.toLowerCase() === "designer"
-                          ? "Nhà thiết kế"
-                          : user.role.toLowerCase() === "customer"
-                            ? "Khách Hàng"
-                            : user.role}
+                        ? "Nhà thiết kế"
+                        : user.role.toLowerCase() === "customer"
+                        ? "Khách Hàng"
+                        : user.role}
                     </p>
                   </div>
                 </div>
@@ -700,8 +713,9 @@ const Navigation: React.FC = () => {
                 <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={userMenu.toggle}
-                    className={`p-2 rounded-lg hover:bg-gray-100 transition-colors ${scrolled || !isHome ? "text-gray-700" : "text-white"
-                      }`}
+                    className={`p-2 rounded-lg hover:bg-gray-100 transition-colors ${
+                      scrolled || !isHome ? "text-gray-700" : "text-white"
+                    }`}
                   >
                     <ChevronDownIcon />
                   </button>
@@ -710,17 +724,18 @@ const Navigation: React.FC = () => {
                     <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                       <div className="py-2 ">
                         {/* Profile Link */}
-                        <button
-                          onClick={() => {
-                            userMenu.toggle();
-                            handleAuth("user-profile");
-                          }}
-                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          <UserIcon />
-                          <span className="ml-3">Trang Cá Nhân</span>
-                        </button>
-
+                        {user.role.toLowerCase() !== "customer" && (
+                          <button
+                            onClick={() => {
+                              userMenu.toggle();
+                              handleAuth("user-profile");
+                            }}
+                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            <UserIcon />
+                            <span className="ml-3">Trang Cá Nhân</span>
+                          </button>
+                        )}
                         {/* Role-specific Menu Items */}
                         {isAdmin() && (
                           <>
@@ -776,6 +791,16 @@ const Navigation: React.FC = () => {
                         {/* Show application menus for customers/users */}
                         {(isCustomer() || user.role === "user") && (
                           <>
+                            <button
+                              onClick={() => {
+                                userMenu.toggle();
+                                handleAuth("user-profile");
+                              }}
+                              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            >
+                              <UserIcon />
+                              <span className="ml-3">Lịch Sử Đơn Hàng</span>
+                            </button>
                             <button
                               onClick={() => {
                                 userMenu.toggle();
@@ -844,10 +869,11 @@ const Navigation: React.FC = () => {
               <div className="flex items-center space-x-4">
                 <Link
                   to="/login"
-                  className={`px-4 py-2 border border-current rounded-lg hover:bg-white hover:text-gray-900 transition-colors ${scrolled || !isHome
-                    ? "text-gray-900 border-gray-900"
-                    : "text-white border-white"
-                    }`}
+                  className={`px-4 py-2 border border-current rounded-lg hover:bg-white hover:text-gray-900 transition-colors ${
+                    scrolled || !isHome
+                      ? "text-gray-900 border-gray-900"
+                      : "text-white border-white"
+                  }`}
                 >
                   Đăng Nhập
                 </Link>

@@ -41,6 +41,11 @@ import {
 } from "../../services/api/ordersService";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-toastify";
+import {
+  ArrowTopRightOnSquareIcon,
+  CubeIcon,
+} from "@heroicons/react/24/outline";
+import { useNavigate } from "react-router-dom";
 
 type Order = OrderModel;
 
@@ -175,7 +180,7 @@ const OrderCard: React.FC<{
 
         {/* Order Info */}
         <Grid container spacing={2} sx={{ mb: 2 }}>
-          <Grid item xs={12} sm={6}>
+          <Grid>
             <Stack spacing={1}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <Person sx={{ fontSize: 18, color: "text.secondary" }} />
@@ -202,7 +207,7 @@ const OrderCard: React.FC<{
             </Stack>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid>
             <Stack spacing={1}>
               <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
                 <LocationOn
@@ -312,6 +317,7 @@ const DesignerOrders: React.FC<DesignerOrdersProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   const { designerProfile } = useAuthStore();
+  const navigate = useNavigate();
 
   // Fetch orders on component mount
   useEffect(() => {
@@ -486,7 +492,7 @@ const DesignerOrders: React.FC<DesignerOrdersProps> = ({
 
       {/* Statistics */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid>
           <Card variant="outlined">
             <CardContent>
               <Box
@@ -512,7 +518,7 @@ const DesignerOrders: React.FC<DesignerOrdersProps> = ({
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid>
           <Card variant="outlined">
             <CardContent>
               <Box
@@ -541,7 +547,7 @@ const DesignerOrders: React.FC<DesignerOrdersProps> = ({
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid>
           <Card variant="outlined">
             <CardContent>
               <Box
@@ -570,7 +576,7 @@ const DesignerOrders: React.FC<DesignerOrdersProps> = ({
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid>
           <Card variant="outlined">
             <CardContent>
               <Box
@@ -673,7 +679,7 @@ const DesignerOrders: React.FC<DesignerOrdersProps> = ({
           ) : (
             <Grid container spacing={2}>
               {filteredOrders.map((order) => (
-                <Grid item xs={12} lg={6} key={order.orderId}>
+                <Grid key={order.orderId}>
                   <OrderCard
                     order={order}
                     onViewDetails={handleViewDetails}
@@ -704,111 +710,230 @@ const DesignerOrders: React.FC<DesignerOrdersProps> = ({
             </DialogTitle>
             <DialogContent dividers>
               <Grid container spacing={3}>
-                {/* Order Status */}
-                <Grid item xs={12}>
-                  <Stack direction="row" spacing={2}>
-                    <OrderStatusBadge
-                      status={selectedOrder.fulfillmentStatus}
-                    />
-                    <OrderStatusBadge
-                      status={selectedOrder.paymentStatus}
-                      type="payment"
-                    />
-                  </Stack>
-                </Grid>
-
-                {/* Customer & Order Info */}
-                <Grid item xs={12} md={6}>
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                    Thông tin khách hàng
-                  </Typography>
-                  <Stack spacing={2}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                      <Person sx={{ color: "text.secondary" }} />
-                      <Box>
-                        <Typography variant="body2" color="text.secondary">
-                          Tên khách hàng
-                        </Typography>
-                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                          {selectedOrder.userName}
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    <Box
-                      sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}
-                    >
-                      <LocationOn sx={{ color: "text.secondary", mt: 0.5 }} />
-                      <Box>
-                        <Typography variant="body2" color="text.secondary">
-                          Địa chỉ giao hàng
-                        </Typography>
-                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                          {selectedOrder.shippingAddress}
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    {selectedOrder.personalPhoneNumber && (
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 2 }}
-                      >
-                        <Typography variant="body2" color="text.secondary">
-                          Số điện thoại:
-                        </Typography>
-                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                          {selectedOrder.personalPhoneNumber}
-                        </Typography>
-                      </Box>
-                    )}
-                  </Stack>
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                    Thông tin đơn hàng
-                  </Typography>
-                  <Stack spacing={2}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                      <CalendarToday sx={{ color: "text.secondary" }} />
-                      <Box>
-                        <Typography variant="body2" color="text.secondary">
-                          Ngày đặt hàng
-                        </Typography>
-                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                          {new Date(selectedOrder.orderDate).toLocaleDateString(
-                            "vi-VN"
-                          )}
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                      <AttachMoney sx={{ color: "text.secondary" }} />
-                      <Box>
-                        <Typography variant="body2" color="text.secondary">
-                          Tổng tiền
-                        </Typography>
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: 600, color: "primary.main" }}
+                <Box display={"flex"} flexDirection={"column"} width={"100%"}>
+                  {/* Order Status */}
+                  <Grid>
+                    <Stack direction="row" spacing={2}>
+                      <OrderStatusBadge
+                        status={selectedOrder.fulfillmentStatus}
+                      />
+                      <OrderStatusBadge
+                        status={selectedOrder.paymentStatus}
+                        type="payment"
+                      />
+                    </Stack>
+                  </Grid>
+                  <Box
+                    display={"flex"}
+                    justifyContent={"space-between"}
+                    gap={3}
+                  >
+                    {/* Customer & Order Info */}
+                    <Grid flex={1}>
+                      <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                        Thông tin khách hàng
+                      </Typography>
+                      <Stack spacing={2}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
                         >
-                          {selectedOrder.totalPrice.toLocaleString("vi-VN")} VND
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Stack>
-                </Grid>
+                          <Person sx={{ color: "text.secondary" }} />
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">
+                              Tên khách hàng
+                            </Typography>
+                            <Typography
+                              variant="body1"
+                              sx={{ fontWeight: 500 }}
+                            >
+                              {selectedOrder.userName}
+                            </Typography>
+                          </Box>
+                        </Box>
 
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: 2,
+                          }}
+                        >
+                          <LocationOn
+                            sx={{ color: "text.secondary", mt: 0.5 }}
+                          />
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">
+                              Địa chỉ giao hàng
+                            </Typography>
+                            <Typography
+                              variant="body1"
+                              sx={{ fontWeight: 500 }}
+                            >
+                              {selectedOrder.shippingAddress}
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        {selectedOrder.personalPhoneNumber && (
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 2,
+                            }}
+                          >
+                            <Typography variant="body2" color="text.secondary">
+                              Số điện thoại:
+                            </Typography>
+                            <Typography
+                              variant="body1"
+                              sx={{ fontWeight: 500 }}
+                            >
+                              {selectedOrder.personalPhoneNumber}
+                            </Typography>
+                          </Box>
+                        )}
+                      </Stack>
+                    </Grid>
+
+                    <Grid flex={1}>
+                      <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                        Thông tin đơn hàng
+                      </Typography>
+                      <Stack spacing={2}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                        >
+                          <CalendarToday sx={{ color: "text.secondary" }} />
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">
+                              Ngày đặt hàng
+                            </Typography>
+                            <Typography
+                              variant="body1"
+                              sx={{ fontWeight: 500 }}
+                            >
+                              {new Date(
+                                selectedOrder.orderDate
+                              ).toLocaleDateString("vi-VN")}
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                        >
+                          <AttachMoney sx={{ color: "text.secondary" }} />
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">
+                              Tổng tiền
+                            </Typography>
+                            <Typography
+                              variant="h6"
+                              sx={{ fontWeight: 600, color: "primary.main" }}
+                            >
+                              {selectedOrder.totalPrice.toLocaleString("vi-VN")}{" "}
+                              VND
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Stack>
+                    </Grid>
+                  </Box>
+                </Box>
                 {/* Order Items Placeholder */}
-                <Grid item xs={12}>
+                <Grid>
                   <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                     Sản phẩm đã đặt
                   </Typography>
                   <Paper sx={{ p: 3, bgcolor: "grey.50" }}>
-                    <Typography variant="body2" color="text.secondary">
-                      Chi tiết sản phẩm sẽ được hiển thị khi tích hợp với API
-                    </Typography>
+                    <Box
+                      sx={{
+                        bgcolor: "orange.50",
+                        border: "1px solid",
+                        borderColor: "orange.200",
+                        borderRadius: 2,
+                        p: 2,
+                      }}
+                    >
+                      {/* Header */}
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={1.5}
+                        mb={2}
+                      >
+                        <Avatar
+                          sx={{
+                            bgcolor: "orange.600",
+                            width: 32,
+                            height: 32,
+                          }}
+                        >
+                          <CubeIcon className="w-4 h-4 text-white" />
+                        </Avatar>
+                        <Typography fontWeight={600} color="orange.900">
+                          Sản phẩm đã đặt
+                        </Typography>
+                      </Stack>
+
+                      {/* Content */}
+                      <Box
+                        sx={{
+                          bgcolor: "white",
+                          border: "1px solid",
+                          borderColor: "orange.200",
+                          borderRadius: 2,
+                          p: 2,
+                        }}
+                      >
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          justifyContent="space-between"
+                          gap={1}
+                        >
+                          <Box>
+                            <Typography
+                              variant="body2"
+                              fontWeight={500}
+                              color="orange.700"
+                            >
+                              📦 Chi tiết sản phẩm
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              display="block"
+                              mt={0.5}
+                            >
+                              Xem danh sách sản phẩm, số lượng và giá tiền chi
+                              tiết
+                            </Typography>
+                          </Box>
+
+                          <Button
+                            variant="contained"
+                            size="small"
+                            sx={{
+                              bgcolor: "orange.600",
+                              "&:hover": { bgcolor: "orange.700" },
+                              textTransform: "none",
+                              borderRadius: 2,
+                              fontWeight: 500,
+                            }}
+                            onClick={() =>
+                              navigate(`/orders/${selectedOrder.orderId}`)
+                            }
+                            startIcon={
+                              <ArrowTopRightOnSquareIcon className="w-4 h-4" />
+                            }
+                          >
+                            Xem chi tiết đầy đủ
+                          </Button>
+                        </Stack>
+                      </Box>
+                    </Box>
                   </Paper>
                 </Grid>
               </Grid>

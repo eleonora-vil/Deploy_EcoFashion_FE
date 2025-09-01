@@ -33,10 +33,9 @@ import AddMaterial from "./pages/supplier/AddMaterial";
 import CustomerProfile from "./pages/customer/CustomerProfile";
 import Explore from "./pages/explore/Explore";
 import AddDesignDraft from "./pages/design/AddDesignDraft";
-
 import ExploreDesigners from "./pages/explore/ExploreDesigners";
 import ExploreSuppliers from "./pages/explore/ExploreSuppliers";
-import DesignerLandingPage from "./pages/explore/DesignerLandingPage";
+//import DesignerLandingPage from "./pages/explore/DesignerLandingPage";
 import SupplierLandingPage from "./pages/explore/SupplierLandingPage";
 import DashboardHome from "./pages/admin/DashboardHome";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -145,7 +144,7 @@ function App() {
           path="/orders"
           element={
             <ProtectedRoute
-              allowedRoles={["customer", "supplier", "designer", "admin"]}
+              allowedRoles={["customer", "supplier", "designer", "admin", "user"]}
             >
               <OrdersPage />
             </ProtectedRoute>
@@ -276,7 +275,7 @@ function App() {
         <Route path="/explore" element={<Explore />} />
         <Route path="/explore/designers" element={<ExploreDesigners />} />
         <Route path="/explore/suppliers" element={<ExploreSuppliers />} />
-        <Route path="/explore/designer/:id" element={<DesignerLandingPage />} />
+
         <Route path="/explore/supplier/:id" element={<SupplierLandingPage />} />
 
         {/* ===== SUPPLIER ROUTES ===== */}
@@ -320,10 +319,6 @@ function App() {
         {/* ===== EXPLORE ROUTES ===== */}
         <Route path="/explore" element={<Explore />} />
         <Route path="/explore/designers" element={<ExploreDesigners />} />
-        <Route
-          path="/explore/designers/:id"
-          element={<DesignerLandingPage />}
-        />
         <Route path="/explore/suppliers" element={<ExploreSuppliers />} />
         <Route
           path="/explore/suppliers/:id"

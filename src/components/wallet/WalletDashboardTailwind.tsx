@@ -448,16 +448,12 @@ const WalletDashboardTailwind: React.FC = () => {
   const handleWithdrawal = async (amount: number, description?: string) => {
     try {
       const result = await withdrawal({ amount, description });
-      // const accept = await respondWithdrawal(result?.id);
-      // const paymentUrl =
-      //   (accept as any)?.paymentUrl || (accept as any)?.PaymentUrl;
-
-      if (result.success) {
-        // window.location.href = paymentUrl;
-        toast.success("Xin chờ duyệt!");
-        setShowwithdrawalModal(false);
-      } else {
+      console.log(result);
+      if (result.success === false) {
         toast.error(result.errorMessage);
+      } else if (result) {
+        toast.success("Xin Chờ Duyệt!");
+        setShowwithdrawalModal(false);
       }
     } catch (error) {
       toast.error(error);
