@@ -208,6 +208,14 @@ export default function DesignerDashboard() {
       setPageLoading(true);
       setError(null);
 
+      const inventoryTransactionsData =
+        await InventoryTransactionsService.getAllMaterialInventoryByDesigner();
+      setInventoryTransactions(inventoryTransactionsData);
+
+      const materialData = await DesignService.getStoredMaterial();
+      setStoredMaterial(materialData);
+      console.log("materialData: ", materialData);
+
       //Get Order
       const fetchedOrders = await ordersService.getOrdersBySeller(
         designerProfile.designerId
@@ -217,15 +225,8 @@ export default function DesignerDashboard() {
       const designData = await DesignService.getAllDesignByDesigner();
       setDesigns(designData);
 
-      const materialData = await DesignService.getStoredMaterial();
-      setStoredMaterial(materialData);
-
       const designProductData = await DesignService.getAllDesignProuct();
       setDesignProduct(designProductData);
-
-      const inventoryTransactionsData =
-        await InventoryTransactionsService.getAllMaterialInventoryByDesigner();
-      setInventoryTransactions(inventoryTransactionsData);
     } catch (error: any) {
       const errorMessage =
         error.message || "Không thể tải danh sách nhà thiết kế";
@@ -2382,17 +2383,15 @@ export default function DesignerDashboard() {
       { field: "notes", headerName: "Ghi chú", flex: 1 },
     ];
   const addToCart = useCartStore((state) => state.addToCart);
-
   const handleAddToCart = async (material: any, quantity: number) => {
     const safeQuantity = Math.abs(quantity);
     const available = material.quantityAvailable || 0;
-
     if (safeQuantity === 0) {
       toast.error("Số lượng phải lớn hơn 0!");
       return;
     }
 
-    let finalQuantity = safeQuantity;
+    let finalQuantity = Math.ceil(safeQuantity);
 
     if (safeQuantity > available) {
       finalQuantity = available; // 🔑 lấy toàn bộ tồn kho
@@ -2400,6 +2399,31 @@ export default function DesignerDashboard() {
         `Bạn yêu cầu ${safeQuantity} mét nhưng chỉ còn ${available} mét. Đã thêm toàn bộ tồn kho vào giỏ hàng.`
       );
     }
+
+    await addToCart({
+      materialId: material.materialId || 0,
+      quantity: finalQuantity,
+    });
+
+    setOpenCreateDialog(false);
+
+    toast.success(
+      `Đã thêm ${finalQuantity} mét ${
+        material.name || "Nguyên liệu"
+      } vào giỏ hàng! 💡 Kiểm tra số lượng trong giỏ hàng.`
+    );
+  };
+  const handleAddToCartNewMaterial = async (
+    material: any,
+    quantity: number
+  ) => {
+    const safeQuantity = Math.abs(quantity);
+    if (safeQuantity === 0) {
+      toast.error("Số lượng phải lớn hơn 0!");
+      return;
+    }
+
+    let finalQuantity = Math.ceil(safeQuantity);
 
     await addToCart({
       materialId: material.materialId || 0,
@@ -3012,7 +3036,7 @@ export default function DesignerDashboard() {
                                 color="text.secondary"
                               >
                                 Sử dụng:{" "}
-                                {(mat.meterUsed * totalQuantity).toFixed(3)} m
+                                {(mat.meterUsed * totalQuantity).toFixed(2)} m
                               </Typography>
                             </Box>
                           </Box>
@@ -3023,83 +3047,124 @@ export default function DesignerDashboard() {
 
                   {/* Danh sách stored material trùng với currentDesign */}
                   {currentDesign &&
-                    matchingMaterials &&
-                    matchingMaterials.length > 0 && (
-                      <Box mt={2}>
-                        <Typography variant="subtitle1">
-                          Vật Liệu Trong Kho:
-                        </Typography>
-                        {matchingMaterials.map((mat, index) => {
-                          // Tính tổng quantity của tất cả variant trong currentDesign
-                          const totalQuantity =
-                            currentDesign?.designsVariants?.reduce(
-                              (sum, variant) =>
-                                sum + variant.quantity * variant.ratio,
-                              0
-                            ) || 0;
+                  matchingMaterials &&
+                  matchingMaterials.length > 0 ? (
+                    <Box mt={2}>
+                      <Typography variant="subtitle1">
+                        Vật Liệu Trong Kho:
+                      </Typography>
+                      {matchingMaterials.map((mat, index) => {
+                        // Tính tổng quantity của tất cả variant trong currentDesign
+                        const totalQuantity =
+                          currentDesign?.designsVariants?.reduce(
+                            (sum, variant) =>
+                              sum + variant.quantity * variant.ratio,
+                            0
+                          ) || 0;
 
-                          // Tìm material trong currentDesign để lấy meterUsed
-                          const designMat = currentDesign?.materials.find(
-                            (m) => m.materialId === mat.materialId
-                          );
+                        // Tìm material trong currentDesign để lấy meterUsed
+                        const designMat = currentDesign?.materials.find(
+                          (m) => m.materialId === mat.materialId
+                        );
 
-                          const required = designMat
-                            ? designMat.meterUsed * totalQuantity
-                            : 0;
-                          const available = mat.quantity;
-                          const isNotEnough = available < required;
+                        const required = designMat
+                          ? designMat.meterUsed * totalQuantity
+                          : 0;
+                        const available = mat.quantity;
+                        const isNotEnough = available < required;
 
-                          return (
-                            <Box
-                              key={index}
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 1,
-                                p: 1,
-                                borderBottom: "1px solid #eee",
-                              }}
-                            >
-                              <Box>
-                                <Typography variant="body2">
-                                  {mat.name}
-                                </Typography>
-                                {isNotEnough ? (
-                                  <Typography
-                                    variant="caption"
-                                    sx={{ color: "error.main" }}
-                                  >
-                                    Có: {available} m / Cần:{" "}
-                                    {(required - available).toFixed(3)} m
-                                  </Typography>
-                                ) : (
-                                  <Typography
-                                    variant="caption"
-                                    sx={{ color: "success.main" }}
-                                  >
-                                    Có: {available} m / Dư:{" "}
-                                    {(available - required).toFixed(3)} m
-                                  </Typography>
-                                )}
-                              </Box>
-                              {/* Nút Order nếu không đủ */}
-                              {isNotEnough && (
-                                <Button
-                                  variant="contained"
-                                  size="small"
-                                  color="primary"
-                                  onClick={() =>
-                                    handleAddToCart(mat, available - required)
-                                  }
+                        return (
+                          <Box
+                            key={index}
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                              p: 1,
+                              borderBottom: "1px solid #eee",
+                            }}
+                          >
+                            <Box>
+                              <Typography variant="body2">
+                                {mat.name}
+                              </Typography>
+                              {isNotEnough ? (
+                                <Typography
+                                  variant="caption"
+                                  sx={{ color: "error.main" }}
                                 >
-                                  Đặt hàng
-                                </Button>
+                                  Có: {available} m / Cần:{" "}
+                                  {(required - available).toFixed(3)} m
+                                </Typography>
+                              ) : (
+                                <Typography
+                                  variant="caption"
+                                  sx={{ color: "success.main" }}
+                                >
+                                  Có: {available} m / Dư:{" "}
+                                  {(available - required).toFixed(3)} m
+                                </Typography>
                               )}
                             </Box>
-                          );
-                        })}
-                      </Box>
-                    )}
+                            {/* Nút Order nếu không đủ */}
+                            {isNotEnough && (
+                              <Button
+                                variant="contained"
+                                size="small"
+                                color="primary"
+                                onClick={() =>
+                                  handleAddToCart(mat, available - required)
+                                }
+                              >
+                                Đặt hàng
+                              </Button>
+                            )}
+                          </Box>
+                        );
+                      })}
+                    </Box>
+                  ) : (
+                    currentDesign &&
+                    currentDesign.materials.map((mat, index) => {
+                      // Tính tổng quantity của tất cả variant
+                      const totalQuantity =
+                        currentDesign.designsVariants.reduce(
+                          (sum, variant) =>
+                            sum + variant.quantity * variant.ratio,
+                          0
+                        );
+
+                      return (
+                        <Box
+                          key={index}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            p: 1,
+                            borderBottom: "1px solid #eee",
+                          }}
+                        >
+                          {/* Nút đặt hàng cho từng material */}
+                          <Button
+                            variant="contained"
+                            size="small"
+                            color="primary"
+                            onClick={() =>
+                              handleAddToCartNewMaterial(
+                                mat,
+                                Number(
+                                  (mat.meterUsed * totalQuantity).toFixed(2)
+                                )
+                              )
+                            }
+                          >
+                            Đặt hàng
+                          </Button>
+                        </Box>
+                      );
+                    })
+                  )}
                 </Box>
 
                 {currentDesign && (
