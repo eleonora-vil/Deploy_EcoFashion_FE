@@ -152,13 +152,21 @@ export default function Homepage() {
         >
           <Box
             sx={{
-              width: "60%",
+              width: "80%",
               backgroundColor: "rgba(145, 136, 136, 0.42)",
               margin: "auto",
               padding: 3,
             }}
           >
-            <Typography variant="h2" fontWeight="bold" gutterBottom>
+            <Typography
+              variant="h2"
+              sx={{
+                fontFamily: "'Allura', cursive",
+                fontWeight: 400,
+                fontSize: "5rem",
+                lineHeight: 1.3,
+              }}
+            >
               Kiến Tạo Phong Cách, Gắn Kết Cộng Đồng, Hướng Tới{" "}
               <span style={{ color: "#32e087" }}>Thời Trang Bền Vững</span>
             </Typography>
@@ -519,7 +527,7 @@ export default function Homepage() {
             navigate(`/material/${material.materialId}`);
           }}
           onViewMore={() => {
-            navigate("/materials")
+            navigate("/materials");
           }}
         />
       </Box>

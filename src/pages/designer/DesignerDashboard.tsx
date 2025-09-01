@@ -3008,9 +3008,10 @@ export default function DesignerDashboard() {
                         Danh sách vật liệu:
                       </Typography>
                       {currentDesign.materials.map((mat, index) => {
-                        // Tổng quantity của tất cả variant
-                        const totalQuantity =
-                          currentDesign.designsVariants.reduce(
+                        // Chỉ tính trên variant đã chọn
+                        const totalQuantity = currentDesign.designsVariants
+                          .filter((v) => selectedVariants.includes(v.id))
+                          .reduce(
                             (sum, variant) =>
                               sum + variant.quantity * variant.ratio,
                             0
@@ -3029,7 +3030,7 @@ export default function DesignerDashboard() {
                           >
                             <Box>
                               <Typography variant="body2">
-                                {mat.materialName}({mat.meterUsed}m)
+                                {mat.materialName} ({mat.meterUsed}m)
                               </Typography>
                               <Typography
                                 variant="caption"
@@ -3046,31 +3047,34 @@ export default function DesignerDashboard() {
                   )}
 
                   {/* Danh sách stored material trùng với currentDesign */}
-                  {currentDesign &&
-                  matchingMaterials &&
-                  matchingMaterials.length > 0 ? (
+                  {currentDesign && (
                     <Box mt={2}>
                       <Typography variant="subtitle1">
                         Vật Liệu Trong Kho:
                       </Typography>
-                      {matchingMaterials.map((mat, index) => {
-                        // Tính tổng quantity của tất cả variant trong currentDesign
-                        const totalQuantity =
-                          currentDesign?.designsVariants?.reduce(
+                      {currentDesign.materials.map((mat, index) => {
+                        // Chỉ tính trên variant đã chọn
+                        const totalQuantity = currentDesign.designsVariants
+                          .filter((v) => selectedVariants.includes(v.id))
+                          .reduce(
                             (sum, variant) =>
                               sum + variant.quantity * variant.ratio,
                             0
-                          ) || 0;
+                          );
 
-                        // Tìm material trong currentDesign để lấy meterUsed
-                        const designMat = currentDesign?.materials.find(
+                        const designMat = currentDesign.materials.find(
                           (m) => m.materialId === mat.materialId
                         );
 
                         const required = designMat
                           ? designMat.meterUsed * totalQuantity
                           : 0;
-                        const available = mat.quantity;
+
+                        // Tìm trong matchingMaterials
+                        const stockMat = matchingMaterials?.find(
+                          (m) => m.materialId === mat.materialId
+                        );
+                        const available = stockMat ? stockMat.quantity : 0;
                         const isNotEnough = available < required;
 
                         return (
@@ -3086,34 +3090,48 @@ export default function DesignerDashboard() {
                           >
                             <Box>
                               <Typography variant="body2">
-                                {mat.name}
+                                {stockMat ? stockMat.name : mat.materialName}
                               </Typography>
-                              {isNotEnough ? (
-                                <Typography
-                                  variant="caption"
-                                  sx={{ color: "error.main" }}
-                                >
-                                  Có: {available} m / Cần:{" "}
-                                  {(required - available).toFixed(3)} m
-                                </Typography>
+
+                              {stockMat ? (
+                                isNotEnough ? (
+                                  <Typography
+                                    variant="caption"
+                                    sx={{ color: "error.main" }}
+                                  >
+                                    Có: {available} m / Thiếu:{" "}
+                                    {(required - available).toFixed(2)} m
+                                  </Typography>
+                                ) : (
+                                  <Typography
+                                    variant="caption"
+                                    sx={{ color: "success.main" }}
+                                  >
+                                    Có: {available} m / Dư:{" "}
+                                    {(available - required).toFixed(2)} m
+                                  </Typography>
+                                )
                               ) : (
                                 <Typography
                                   variant="caption"
-                                  sx={{ color: "success.main" }}
+                                  sx={{ color: "warning.main" }}
                                 >
-                                  Có: {available} m / Dư:{" "}
-                                  {(available - required).toFixed(3)} m
+                                  Không có trong kho
                                 </Typography>
                               )}
                             </Box>
-                            {/* Nút Order nếu không đủ */}
-                            {isNotEnough && (
+
+                            {/* Luôn hiện nút Order nếu chưa có hoặc không đủ */}
+                            {(!stockMat || isNotEnough) && (
                               <Button
                                 variant="contained"
                                 size="small"
                                 color="primary"
                                 onClick={() =>
-                                  handleAddToCart(mat, available - required)
+                                  handleAddToCartNewMaterial(
+                                    mat,
+                                    Number((required - available).toFixed(2))
+                                  )
                                 }
                               >
                                 Đặt hàng
@@ -3123,47 +3141,6 @@ export default function DesignerDashboard() {
                         );
                       })}
                     </Box>
-                  ) : (
-                    currentDesign &&
-                    currentDesign.materials.map((mat, index) => {
-                      // Tính tổng quantity của tất cả variant
-                      const totalQuantity =
-                        currentDesign.designsVariants.reduce(
-                          (sum, variant) =>
-                            sum + variant.quantity * variant.ratio,
-                          0
-                        );
-
-                      return (
-                        <Box
-                          key={index}
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            p: 1,
-                            borderBottom: "1px solid #eee",
-                          }}
-                        >
-                          {/* Nút đặt hàng cho từng material */}
-                          <Button
-                            variant="contained"
-                            size="small"
-                            color="primary"
-                            onClick={() =>
-                              handleAddToCartNewMaterial(
-                                mat,
-                                Number(
-                                  (mat.meterUsed * totalQuantity).toFixed(2)
-                                )
-                              )
-                            }
-                          >
-                            Đặt hàng
-                          </Button>
-                        </Box>
-                      );
-                    })
                   )}
                 </Box>
 

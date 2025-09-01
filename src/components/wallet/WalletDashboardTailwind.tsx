@@ -599,7 +599,7 @@ const WalletDashboardTailwind: React.FC = () => {
             <div>
               <p className="text-sm text-blue-600 font-medium">Chênh lệch</p>
               <p className="text-xl font-bold text-blue-700">
-                {((income as number) - (expense as number)).toLocaleString(
+                {((income as number) + (expense as number)).toLocaleString(
                   "vi-VN"
                 )}{" "}
                 VND

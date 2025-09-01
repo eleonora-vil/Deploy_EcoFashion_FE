@@ -25,15 +25,20 @@ import {
   Pagination,
 } from "@mui/material";
 //example
-import ao_linen from "../../assets/pictures/example/ao-linen.webp";
-import chan_vay_dap from "../../assets/pictures/example/chan-vay-dap.webp";
-import dam_con_trung from "../../assets/pictures/example/dam-con-trung.webp";
 import brand_banner from "../../assets/pictures/example/brand-banner.jpg";
 import linen from "../../assets/pictures/example/linen.webp";
 import nylon from "../../assets/pictures/example/nylon.webp";
 import denim from "../../assets/pictures/example/denim.jpg";
+import recyceld_cotton from "../../assets/pictures/example/cotton.webp";
 import cotton from "../../assets/pictures/example/cotton.webp";
+import hemp from "../../assets/pictures/example/hemp.jpg";
+import bamboo from "../../assets/pictures/example/bamboo.jpg";
+import tencel from "../../assets/pictures/example/tencel.jpg";
+import wool from "../../assets/pictures/example/recyceld_wool.webp";
 import polyester from "../../assets/pictures/example/Polyester.jpg";
+import silk from "../../assets/pictures/example/silk.webp";
+import alpaca from "../../assets/pictures/example/albaca.webp";
+import defaultImage from "../../assets/pictures/example/default_fabric.webp";
 
 import { GridExpandMoreIcon, GridSearchIcon } from "@mui/x-data-grid";
 import React, { useEffect, useRef, useState } from "react";
@@ -42,44 +47,31 @@ import StarIcon from "@mui/icons-material/Star";
 import DesignsSection from "../../components/design/DesignsSection";
 import { toast } from "react-toastify";
 import { DesignerService } from "../../services/api";
-import { DesignerPublic } from "../../services/api/designerService";
+import {
+  DesignerPublic,
+  MaterialUsage,
+} from "../../services/api/designerService";
 import DesignService, { Design } from "../../services/api/designService";
 
 //picture
 import Vnpay from "../../assets/pictures/vnpay.jpg";
 
-const sustainabilityItems = [
-  {
-    image: linen,
-    amount: "200m",
-    material: "vải linen",
-  },
-  {
-    image: nylon,
-    amount: "200m",
-    material: "vải nylon",
-  },
-  {
-    image: cotton,
-    amount: "200m",
-    material: "vải cotton",
-  },
-  {
-    image: denim,
-    amount: "200m",
-    material: "vải denim",
-  },
-  {
-    image: polyester,
-    amount: "200m",
-    material: "vải polyester",
-  },
-  {
-    image: polyester,
-    amount: "200m",
-    material: "vải polyester2",
-  },
-];
+// map ảnh theo material
+const materialImages = {
+  "Organic Cotton": cotton,
+  "Recycled Cotton": recyceld_cotton,
+  Hemp: hemp,
+  "Recycled Polyester": polyester,
+  "Bamboo Viscose": bamboo,
+  "Tencel (Lyocell)": tencel,
+  "Recycled Wool": wool,
+  "Organic Silk": silk,
+  "Recycled Nylon": nylon,
+  "Organic Linen": linen,
+  "Recycled Denim": denim,
+  "Organic Alpaca": alpaca,
+};
+
 const reviews = [
   {
     name: "Sarah M.",
@@ -138,6 +130,8 @@ export default function DesingBrandProfile() {
   //Count type
   const [typeCounts, setTypeCounts] = useState<Record<string, number>>({});
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  //Material Usage Data
+  const [materialUsage, setMaterilUsage] = useState<MaterialUsage[]>([]);
   //Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState<number>();
@@ -166,13 +160,19 @@ export default function DesingBrandProfile() {
         const designerData = await DesignerService.getDesignerPublicProfile(id);
         setDesigner(designerData);
         if (designerData) {
+          const materialUsage = await DesignerService.getMaterialUsage(
+            designerData.designerId
+          );
+          setMaterilUsage(materialUsage);
+          console.log("material usage: ", materialUsage);
           const data = await DesignService.getAllDesignByDesignerPagination(
             designerData.designerId,
             currentPage,
             pageSize
           );
           // Dynamic total pages: if we received a full page, tentatively allow next page
-          const inferredTotalPages = data.length === pageSize ? currentPage + 1 : currentPage;
+          const inferredTotalPages =
+            data.length === pageSize ? currentPage + 1 : currentPage;
           setTotalPage(inferredTotalPages);
           // Count design types
           const counts: Record<string, number> = {};
@@ -193,6 +193,15 @@ export default function DesingBrandProfile() {
     };
     fetchDesigner();
   }, [id, currentPage]);
+
+  // chuyển dữ liệu backend -> sustainabilityItems
+  const sustainabilityItems = materialUsage
+    .filter((item) => item.totalUsedMeters > 0) // chỉ lấy loại nào có số liệu
+    .map((item) => ({
+      image: materialImages[item.materialTypeName] || defaultImage,
+      amount: `${item.totalUsedMeters}m`,
+      material: item.materialTypeName,
+    }));
 
   // filter type
   const dynamicTypeFilterOptions = Object.entries(typeCounts).map(
