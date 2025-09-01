@@ -2343,7 +2343,7 @@ export default function DesignerDashboard() {
             case "import":
               return (
                 <Box display="flex" alignItems="center" gap={1}>
-                  <Typography variant="body2">Sử dụng</Typography>
+                  <Typography variant="body2">Nhập kho</Typography>
                   <Tooltip title="Xem chi tiết">
                     <IconButton
                       color="primary"
