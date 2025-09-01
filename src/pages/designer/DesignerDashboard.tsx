@@ -238,6 +238,11 @@ export default function DesignerDashboard() {
     }
   };
 
+  function getOrderId(orderText: string): number | null {
+    const match = orderText.match(/#(\d+)/);
+    return match ? parseInt(match[1], 10) : null;
+  }
+
   function formatDate(
     dateString: string,
     options?: Intl.DateTimeFormatOptions
@@ -2230,13 +2235,33 @@ export default function DesignerDashboard() {
     {
       field: "transactionType",
       headerName: "Loại GD",
-      width: 120,
+      width: 150,
       renderCell: (params) => {
-        switch (params.value) {
-          case "Import":
+        switch (params.value?.toLowerCase()) {
+          case "import":
             return "Nhập kho";
-          case "Usage":
+          case "usage":
             return "Sử dụng";
+          case "export":
+            return (
+              <Box display="flex" alignItems="center" gap={1}>
+                <Typography variant="body2">Xuất kho</Typography>
+                <Tooltip title="Xem chi tiết">
+                  <IconButton
+                    color="primary"
+                    size="small"
+                    onClick={() => {
+                      const orderId = getOrderId(params.row.notes); // lấy từ cột notes
+                      if (orderId) {
+                        window.open(`/orders/${orderId}`, "_blank");
+                      }
+                    }}
+                  >
+                    <VisibilityIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            );
           default:
             return params.value;
         }
@@ -2312,11 +2337,29 @@ export default function DesignerDashboard() {
         headerName: "Loại GD",
         width: 120,
         renderCell: (params) => {
-          switch (params.value) {
-            case "Import":
-              return "Nhập kho";
-            case "Usage":
+          switch (params.value.toLowerCase()) {
+            case "usage":
               return "Sử dụng";
+            case "import":
+              return (
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Typography variant="body2">Sử dụng</Typography>
+                  <Tooltip title="Xem chi tiết">
+                    <IconButton
+                      color="primary"
+                      size="small"
+                      onClick={() => {
+                        const orderId = getOrderId(params.row.notes); // lấy từ cột notes
+                        if (orderId) {
+                          window.open(`/orders/${orderId}`, "_blank");
+                        }
+                      }}
+                    >
+                      <VisibilityIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              );
             default:
               return params.value;
           }
