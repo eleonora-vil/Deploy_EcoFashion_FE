@@ -542,85 +542,84 @@ export default function DesingBrandProfile() {
         </Typography>
       </Box>
       <Divider />
-      {/* Sustainability */}
-      <Box sx={{ width: "90%", margin: "auto", padding: 2 }}>
-        {/* Scroll */}
-        <Box
-          sx={{
-            width: "100%",
-          }}
-        >
+      {sustainabilityItems.length > 0 && (
+        <Box sx={{ width: "90%", margin: "auto", padding: 2 }}>
           <Box
             sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
               width: "100%",
-              margin: "auto",
             }}
           >
-            <IconButton onClick={() => scroll("left")}>
-              <ArrowBackIos />
-            </IconButton>
-
             <Box
-              ref={scrollRef}
               sx={{
-                display: "flex", // keep flex for horizontal scroll
-                overflowX: "auto",
-                scrollBehavior: "smooth",
-                gap: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
                 width: "100%",
-                mx: "auto",
-                "&::-webkit-scrollbar": { display: "none" },
+                margin: "auto",
               }}
             >
-              {sustainabilityItems.map((item, index) => (
-                <Grid
-                  key={index}
-                  sx={{
-                    width: 410,
-                    height: 250,
-                    backgroundImage: `url(${item.image})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    position: "relative",
-                    flexShrink: 0,
-                    borderRadius: 2,
-                    overflow: "hidden",
-                  }}
-                >
-                  <Box
+              <IconButton onClick={() => scroll("left")}>
+                <ArrowBackIos />
+              </IconButton>
+
+              <Box
+                ref={scrollRef}
+                sx={{
+                  display: "flex", // keep flex for horizontal scroll
+                  overflowX: "auto",
+                  scrollBehavior: "smooth",
+                  gap: 2,
+                  width: "100%",
+                  mx: "auto",
+                  "&::-webkit-scrollbar": { display: "none" },
+                }}
+              >
+                {sustainabilityItems.map((item, index) => (
+                  <Grid
+                    key={index}
                     sx={{
-                      bgcolor: "rgba(255,255,255,0.8)",
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      textAlign: "center",
-                      p: 2,
+                      width: 410,
+                      height: 250,
+                      backgroundImage: `url(${item.image})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      position: "relative",
+                      flexShrink: 0,
                       borderRadius: 2,
-                      width: "50%",
+                      overflow: "hidden",
                     }}
                   >
-                    <Typography variant="body1">Đã tái sử dụng</Typography>
-                    <Typography variant="h4" fontWeight="bold">
-                      {item.amount}
-                    </Typography>
-                    <Typography variant="body1" fontWeight="bold">
-                      {item.material}
-                    </Typography>
-                  </Box>
-                </Grid>
-              ))}
+                    <Box
+                      sx={{
+                        bgcolor: "rgba(255,255,255,0.8)",
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        textAlign: "center",
+                        p: 2,
+                        borderRadius: 2,
+                        width: "50%",
+                      }}
+                    >
+                      <Typography variant="body1">Đã tái sử dụng</Typography>
+                      <Typography variant="h4" fontWeight="bold">
+                        {item.amount}
+                      </Typography>
+                      <Typography variant="body1" fontWeight="bold">
+                        {item.material}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                ))}
+              </Box>
+              <IconButton onClick={() => scroll("right")}>
+                <ArrowForwardIos />
+              </IconButton>
             </Box>
-            <IconButton onClick={() => scroll("right")}>
-              <ArrowForwardIos />
-            </IconButton>
           </Box>
         </Box>
-        {/* Navigation */}
-      </Box>
+      )}
       <Divider />
       <Box id="items">
         {/* Nav Bar */}

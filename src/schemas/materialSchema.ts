@@ -6,65 +6,103 @@ const nullableString = () => z.string().nullable().optional();
 // Helper: chuyển các giá trị rỗng/NaN thành undefined cho số optional
 const optionalNonNegativeNumber = () =>
   z.preprocess((val) => {
-    if (val === '' || val === null || typeof val === 'undefined') return undefined;
-    if (typeof val === 'string' && val.trim() === '') return undefined;
-    if (typeof val === 'number' && Number.isNaN(val)) return undefined;
+    if (val === "" || val === null || typeof val === "undefined")
+      return undefined;
+    if (typeof val === "string" && val.trim() === "") return undefined;
+    if (typeof val === "number" && Number.isNaN(val)) return undefined;
     return val;
-  }, z.number().min(0, { message: 'Giá trị phải >= 0' }));
+  }, z.number().min(0, { message: "Giá trị phải >= 0" }));
 
 // Helper: phần trăm 0-100 (optional)
 const optionalPercentNumber = () =>
   z.preprocess((val) => {
-    if (val === '' || val === null || typeof val === 'undefined') return undefined;
-    if (typeof val === 'string' && val.trim() === '') return undefined;
-    if (typeof val === 'number' && Number.isNaN(val)) return undefined;
+    if (val === "" || val === null || typeof val === "undefined")
+      return undefined;
+    if (typeof val === "string" && val.trim() === "") return undefined;
+    if (typeof val === "number" && Number.isNaN(val)) return undefined;
     return val;
-  }, z.number().min(0, { message: 'Tối thiểu 0%' }).max(100, { message: 'Tối đa 100%' }));
+  }, z.number().min(0, { message: "Tối thiểu 0%" }).max(100, { message: "Tối đa 100%" }));
 
 // Schema cho Sustainability Criterion (theo MaterialSustainabilityCriterionDto)
 export const sustainabilityCriterionSchema = z.object({
-  criterionId: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
+  criterionId: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
   name: nullableString(),
   description: nullableString(),
   unit: nullableString(),
-  value: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val),
+  value: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val)),
 });
 
 // Schema cho Material Type Benchmark (theo MaterialTypeBenchmarkModel)
 export const materialTypeBenchmarkSchema = z.object({
-  benchmarkId: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
-  typeId: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
-  criteriaId: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
-  value: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val), // Giá trị chuẩn (benchmark)
-  materialType: z.object({
-    typeId: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
-    typeName: nullableString(),
-    description: nullableString(),
-    category: nullableString(),
-    isOrganic: z.boolean(),
-    isRecycled: z.boolean(),
-    sustainabilityNotes: nullableString(),
-    displayOrder: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
-    isActive: z.boolean(),
-  }).optional(),
-  sustainabilityCriteria: z.object({
-    criterionId: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
-    name: nullableString(),
-    description: nullableString(),
-    unit: nullableString(),
-    weight: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val),
-    thresholds: nullableString(),
-    isActive: z.boolean(),
-    displayOrder: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
-  }).optional(),
+  benchmarkId: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
+  typeId: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
+  criteriaId: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
+  value: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val)), // Giá trị chuẩn (benchmark)
+  materialType: z
+    .object({
+      typeId: z
+        .union([z.number(), z.string()])
+        .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
+      typeName: nullableString(),
+      description: nullableString(),
+      category: nullableString(),
+      isOrganic: z.boolean(),
+      isRecycled: z.boolean(),
+      sustainabilityNotes: nullableString(),
+      displayOrder: z
+        .union([z.number(), z.string()])
+        .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
+      isActive: z.boolean(),
+    })
+    .optional(),
+  sustainabilityCriteria: z
+    .object({
+      criterionId: z
+        .union([z.number(), z.string()])
+        .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
+      name: nullableString(),
+      description: nullableString(),
+      unit: nullableString(),
+      weight: z
+        .union([z.number(), z.string()])
+        .transform((val) => (typeof val === "string" ? parseFloat(val) : val)),
+      thresholds: nullableString(),
+      isActive: z.boolean(),
+      displayOrder: z
+        .union([z.number(), z.string()])
+        .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
+    })
+    .optional(),
   // Thêm các trường so sánh
-  actualValue: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val).nullable().optional(), // Giá trị thực tế của material
-  improvementPercentage: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val).nullable().optional(), // Phần trăm cải thiện
+  actualValue: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val))
+    .nullable()
+    .optional(), // Giá trị thực tế của material
+  improvementPercentage: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val))
+    .nullable()
+    .optional(), // Phần trăm cải thiện
   improvementStatus: nullableString(), // Trạng thái: "Tốt hơn", "Kém hơn", "Bằng"
   improvementColor: nullableString(), // Màu sắc: "success", "error", "warning"
 });
 
-export type MaterialTypeBenchmarkModel = z.infer<typeof materialTypeBenchmarkSchema>;
+export type MaterialTypeBenchmarkModel = z.infer<
+  typeof materialTypeBenchmarkSchema
+>;
 
 // Schema cho Supplier Public Info (theo SupplierPublicModel từ backend)
 export const supplierPublicSchema = z.object({
@@ -79,8 +117,14 @@ export const supplierPublicSchema = z.object({
   email: nullableString(),
   phoneNumber: nullableString(),
   address: nullableString(),
-  rating: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val).optional(),
-  reviewCount: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val).optional(),
+  rating: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val))
+    .optional(),
+  reviewCount: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseInt(val) : val))
+    .optional(),
   certificates: nullableString(),
   createdAt: z.union([z.string(), z.date()]), // DateTime được serialize thành string
   userFullName: nullableString(),
@@ -117,46 +161,72 @@ export const materialDetailDtoSchema = z.object({
   supplierName: nullableString(),
   supplierId: nullableString(), // Guid được serialize thành string
   documentationUrl: nullableString(),
-  
+
   // Sustainability fields
   sustainabilityScore: z.number().optional(),
   sustainabilityLevel: nullableString(),
   sustainabilityColor: nullableString(),
-  
+
   // Supplier object
   supplier: supplierPublicSchema.optional(),
-  
+
   // Sustainability criteria
   sustainabilityCriteria: z.array(sustainabilityCriterionSchema).optional(),
-  
+
   // Benchmarks
   benchmarks: z.array(materialTypeBenchmarkSchema).optional(),
 });
 
 // Schema cho Material Detail Response (theo MaterialDetailResponse từ backend)
 export const materialDetailResponseSchema = z.object({
-  materialId: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
+  materialId: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
   materialTypeName: nullableString(),
   name: nullableString(),
   description: nullableString(),
-  recycledPercentage: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val).nullable().optional(),
-  quantityAvailable: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
-  pricePerUnit: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val),
+  recycledPercentage: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val))
+    .nullable()
+    .optional(),
+  quantityAvailable: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
+  pricePerUnit: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val)),
   documentationUrl: nullableString(),
   createdAt: z.union([z.string(), z.date()]),
   lastUpdated: z.union([z.string(), z.date()]),
-  carbonFootprint: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val).optional(),
+  carbonFootprint: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val))
+    .optional(),
   carbonFootprintUnit: nullableString(),
-  waterUsage: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val).optional(),
+  waterUsage: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val))
+    .optional(),
   waterUsageUnit: nullableString(),
-  wasteDiverted: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val).optional(),
+  wasteDiverted: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val))
+    .optional(),
   wasteDivertedUnit: nullableString(),
   productionCountry: nullableString(),
   productionRegion: nullableString(), // Thêm field mới
   manufacturingProcess: nullableString(),
   certificationDetails: nullableString(),
-  certificationExpiryDate: z.union([z.string(), z.date()]).nullable().optional(),
-  transportDistance: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val).nullable().optional(), // Thêm field mới
+  certificationExpiryDate: z
+    .union([z.string(), z.date()])
+    .nullable()
+    .optional(),
+  transportDistance: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val))
+    .nullable()
+    .optional(), // Thêm field mới
   transportMethod: nullableString(), // Thêm field mới
   approvalStatus: nullableString(),
   adminNote: nullableString(),
@@ -165,18 +235,37 @@ export const materialDetailResponseSchema = z.object({
   sustainabilityCriteria: z.array(sustainabilityCriterionSchema).optional(),
   benchmarks: z.array(materialTypeBenchmarkSchema).optional(),
   supplier: supplierPublicSchema.optional(), // Sử dụng schema mới
-  sustainabilityScore: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val).optional(),
+  sustainabilityScore: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val))
+    .optional(),
   sustainabilityLevel: nullableString(),
   sustainabilityColor: nullableString(),
-  criterionDetails: z.array(z.object({
-    criterionName: z.string(),
-    actualValue: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val),
-    benchmarkValue: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val),
-    unit: z.string(),
-    score: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val),
-    status: z.string(),
-    explanation: z.string(),
-  })).optional(),
+  criterionDetails: z
+    .array(
+      z.object({
+        criterionName: z.string(),
+        actualValue: z
+          .union([z.number(), z.string()])
+          .transform((val) =>
+            typeof val === "string" ? parseFloat(val) : val
+          ),
+        benchmarkValue: z
+          .union([z.number(), z.string()])
+          .transform((val) =>
+            typeof val === "string" ? parseFloat(val) : val
+          ),
+        unit: z.string(),
+        score: z
+          .union([z.number(), z.string()])
+          .transform((val) =>
+            typeof val === "string" ? parseFloat(val) : val
+          ),
+        status: z.string(),
+        explanation: z.string(),
+      })
+    )
+    .optional(),
 });
 
 // Schema cho Material Type Model (theo MaterialTypeModel từ backend)
@@ -227,15 +316,26 @@ export const materialModelSchema = z.object({
 // Schema cho Material Creation Form Request (theo MaterialCreationFormRequest từ backend)
 export const materialCreationFormRequestSchema = z.object({
   // Backend expects: SupplierId (Guid), TypeId (int)
-  supplierId: z.string().uuid({ message: 'Supplier không hợp lệ' }),
-  typeId: z.number().int({ message: 'Loại vật liệu không hợp lệ' }).min(1, { message: 'Vui lòng chọn loại vật liệu' }),
+  supplierId: z.string().uuid({ message: "Supplier không hợp lệ" }),
+  typeId: z
+    .number()
+    .int({ message: "Loại vật liệu không hợp lệ" })
+    .min(1, { message: "Vui lòng chọn loại vật liệu" }),
 
-  name: z.string().trim().min(1, { message: 'Tên vật liệu không được để trống' }),
+  name: z
+    .string()
+    .trim()
+    .min(1, { message: "Tên vật liệu không được để trống" }),
   description: nullableString(),
-  recycledPercentage: z.number().min(0, { message: 'Tối thiểu 0%' }).max(100, { message: 'Tối đa 100%' }),
-  quantityAvailable: z.number().min(0.001, { message: 'Số lượng phải > 0' }),
-  pricePerUnit: z.number().min(0.01, { message: 'Giá phải > 0' }),
-  documentationUrl: z.union([z.string().url({ message: 'URL không hợp lệ' }), z.literal(''), z.undefined()]).optional(),
+  recycledPercentage: z
+    .number()
+    .min(0, { message: "Tối thiểu 0%" })
+    .max(100, { message: "Tối đa 100%" }),
+  quantityAvailable: z.number().min(0.001, { message: "Số lượng phải > 0" }),
+  pricePerUnit: z.number().min(0.01, { message: "Giá phải > 0" }),
+  documentationUrl: z
+    .union([z.string(), z.literal(""), z.undefined()])
+    .optional(),
 
   // Sustainability numeric fields (optional)
   carbonFootprint: optionalNonNegativeNumber(),
@@ -243,7 +343,11 @@ export const materialCreationFormRequestSchema = z.object({
   wasteDiverted: optionalPercentNumber(),
 
   // Production info
-  productionCountry: z.string().trim().min(1, { message: 'Vui lòng chọn quốc gia sản xuất' }).optional(),
+  productionCountry: z
+    .string()
+    .trim()
+    .min(1, { message: "Vui lòng chọn quốc gia sản xuất" })
+    .optional(),
   productionRegion: nullableString(),
   manufacturingProcess: nullableString(),
 
@@ -260,10 +364,14 @@ export const materialCreationFormRequestSchema = z.object({
   transportMethod: nullableString(),
 
   // Criteria values (optional; server will also infer organic & transport)
-  sustainabilityCriteria: z.array(z.object({
-    criterionId: z.number(),
-    value: z.number(),
-  })).optional(),
+  sustainabilityCriteria: z
+    .array(
+      z.object({
+        criterionId: z.number(),
+        value: z.number(),
+      })
+    )
+    .optional(),
 
   // Optional availability (server overrides to Pending/IsAvailable=false)
   isAvailable: z.boolean().optional(),
@@ -296,23 +404,29 @@ export const materialCreationResponseSchema = z.object({
   marketPosition: z.string().optional(),
   competitiveAdvantage: z.string().optional(),
 
-  criterionScores: z.array(z.object({
-    criterionName: z.string(),
-    actualValue: z.number(),
-    benchmarkValue: z.number(),
-    unit: z.string(),
-    score: z.number(),
-    status: z.string(),
-  })).optional(),
+  criterionScores: z
+    .array(
+      z.object({
+        criterionName: z.string(),
+        actualValue: z.number(),
+        benchmarkValue: z.number(),
+        unit: z.string(),
+        score: z.number(),
+        status: z.string(),
+      })
+    )
+    .optional(),
 
-  summary: z.object({
-    totalCriteria: z.number(),
-    excellentCriteria: z.number(),
-    goodCriteria: z.number(),
-    averageCriteria: z.number(),
-    needsImprovementCriteria: z.number(),
-    recommendation: z.string(),
-  }).optional(),
+  summary: z
+    .object({
+      totalCriteria: z.number(),
+      excellentCriteria: z.number(),
+      goodCriteria: z.number(),
+      averageCriteria: z.number(),
+      needsImprovementCriteria: z.number(),
+      recommendation: z.string(),
+    })
+    .optional(),
 });
 
 // Schema cho Material Filter Request
@@ -337,65 +451,103 @@ export const materialSearchSchema = z.object({
 export const materialApiResponseSchema = z.object({
   success: z.boolean(),
   message: nullableString(),
-  data: z.union([
-    materialDetailDtoSchema,
-    z.array(materialDetailDtoSchema),
-    materialTypeModelSchema,
-    z.array(materialTypeModelSchema),
-  ]).optional(),
+  data: z
+    .union([
+      materialDetailDtoSchema,
+      z.array(materialDetailDtoSchema),
+      materialTypeModelSchema,
+      z.array(materialTypeModelSchema),
+    ])
+    .optional(),
   errorMessage: nullableString(),
 });
 
 // Schema cho CriterionCalculationDetail
 export const criterionCalculationDetailSchema = z.object({
   criterionName: z.string(),
-  actualValue: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val),
-  benchmarkValue: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val),
+  actualValue: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val)),
+  benchmarkValue: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val)),
   unit: z.string(),
-  score: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val),
+  score: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val)),
   status: z.string(),
-  explanation: z.string()
+  explanation: z.string(),
 });
 
 // Schema cho SustainabilitySummary
 export const sustainabilitySummarySchema = z.object({
-  totalCriteria: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
-  excellentCriteria: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
-  goodCriteria: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
-  averageCriteria: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
-  needsImprovementCriteria: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
-  recommendation: z.string()
+  totalCriteria: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
+  excellentCriteria: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
+  goodCriteria: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
+  averageCriteria: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
+  needsImprovementCriteria: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
+  recommendation: z.string(),
 });
 
 // Schema cho MaterialSustainabilityReport
 export const materialSustainabilityReportSchema = z.object({
-  materialId: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
+  materialId: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
   materialName: z.string(),
   materialTypeName: nullableString(),
-  recycledPercentage: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseFloat(val) : val),
-  overallSustainabilityScore: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
+  recycledPercentage: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseFloat(val) : val)),
+  overallSustainabilityScore: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === "string" ? parseInt(val) : val)),
   sustainabilityLevel: z.string(),
   levelColor: z.string(),
   criterionDetails: z.array(criterionCalculationDetailSchema),
-  summary: sustainabilitySummarySchema
+  summary: sustainabilitySummarySchema,
 });
 
 // Export types
-export type SustainabilityCriterionDto = z.infer<typeof sustainabilityCriterionSchema>;
-export type MaterialTypeBenchmarkDto = z.infer<typeof materialTypeBenchmarkSchema>;
+export type SustainabilityCriterionDto = z.infer<
+  typeof sustainabilityCriterionSchema
+>;
+export type MaterialTypeBenchmarkDto = z.infer<
+  typeof materialTypeBenchmarkSchema
+>;
 export type SupplierPublicDto = z.infer<typeof supplierPublicSchema>;
-export type MaterialDetailResponse = z.infer<typeof materialDetailResponseSchema>;
+export type MaterialDetailResponse = z.infer<
+  typeof materialDetailResponseSchema
+>;
 export type MaterialDetailDto = z.infer<typeof materialDetailDtoSchema>;
 export type MaterialTypeModel = z.infer<typeof materialTypeModelSchema>;
 export type MaterialModel = z.infer<typeof materialModelSchema>;
-export type CriterionCalculationDetail = z.infer<typeof criterionCalculationDetailSchema>;
+export type CriterionCalculationDetail = z.infer<
+  typeof criterionCalculationDetailSchema
+>;
 export type SustainabilitySummary = z.infer<typeof sustainabilitySummarySchema>;
-export type MaterialSustainabilityReport = z.infer<typeof materialSustainabilityReportSchema>;
-export type MaterialCreationFormRequest = z.infer<typeof materialCreationFormRequestSchema>;
-export type MaterialCreationResponse = z.infer<typeof materialCreationResponseSchema>;
+export type MaterialSustainabilityReport = z.infer<
+  typeof materialSustainabilityReportSchema
+>;
+export type MaterialCreationFormRequest = z.infer<
+  typeof materialCreationFormRequestSchema
+>;
+export type MaterialCreationResponse = z.infer<
+  typeof materialCreationResponseSchema
+>;
 export type MaterialFilterRequest = z.infer<typeof materialFilterSchema>;
 export type MaterialSearchRequest = z.infer<typeof materialSearchSchema>;
-export type MaterialApiResponse = z.infer<typeof materialApiResponseSchema>; 
+export type MaterialApiResponse = z.infer<typeof materialApiResponseSchema>;
 
 // Supplier Materials Response Schema
 export const supplierMaterialSchema = z.object({
@@ -418,16 +570,22 @@ export const supplierMaterialSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   sustainabilityScore: z.number().optional(),
-  images: z.array(z.object({
-    imageId: z.string(),
-    imageUrl: z.string(),
-    altText: z.string().optional()
-  })).optional()
+  images: z
+    .array(
+      z.object({
+        imageId: z.string(),
+        imageUrl: z.string(),
+        altText: z.string().optional(),
+      })
+    )
+    .optional(),
 });
 
 export const supplierMaterialsResponseSchema = z.object({
-  data: z.array(supplierMaterialSchema)
+  data: z.array(supplierMaterialSchema),
 });
 
 export type SupplierMaterial = z.infer<typeof supplierMaterialSchema>;
-export type SupplierMaterialsResponse = z.infer<typeof supplierMaterialsResponseSchema>; 
+export type SupplierMaterialsResponse = z.infer<
+  typeof supplierMaterialsResponseSchema
+>;

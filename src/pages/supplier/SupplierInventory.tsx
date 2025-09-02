@@ -6,10 +6,16 @@ import { PlusIcon } from '../../assets/icons/index.tsx';
 const SupplierInventory: React.FC = () => {
   const { data: stocks = [], isLoading } = useSupplierStocks();
   const [activeMaterialId, setActiveMaterialId] = React.useState<number | null>(null);
-  const { data: transactions = [] } = useMaterialTransactions(activeMaterialId ? { materialId: activeMaterialId } : undefined);
+  const [txTypeFilter, setTxTypeFilter] = React.useState<string>('');
+  const { data: transactions = [] } = useMaterialTransactions(
+    activeMaterialId || txTypeFilter
+      ? { materialId: activeMaterialId ?? undefined, type: txTypeFilter || undefined }
+      : undefined
+  );
   const receive = useReceiveMaterial();
 
   const [qty, setQty] = React.useState<string>('');
+  const [note, setNote] = React.useState<string>('');
   const [warehouseId, setWarehouseId] = React.useState<number | null>(null);
   const [openId, setOpenId] = React.useState<number | null>(null);
 
@@ -18,14 +24,28 @@ const SupplierInventory: React.FC = () => {
     setActiveMaterialId(materialId);
     setWarehouseId(warehouse);
     setQty('');
+    setNote('');
   };
 
   const submitReceive = async () => {
     if (!openId || !warehouseId) return;
     const quantity = parseFloat(qty);
     if (!quantity || quantity <= 0) return;
-    await receive.mutateAsync({ materialId: openId, warehouseId, quantity, unit: 'm' });
+    await receive.mutateAsync({ materialId: openId, warehouseId, quantity, unit: 'm', note: note?.trim() || undefined });
     setOpenId(null);
+  };
+
+  const translateTxType = (type?: string | null) => {
+    switch ((type || '').trim()) {
+      case 'CustomerSale':
+        return 'Khách mua vật liệu';
+      case 'SupplierReceipt':
+        return 'Nhà cung cấp nhập kho';
+      case 'ManualAdjustment':
+        return 'Điều chỉnh thủ công';
+      default:
+        return type || '—';
+    }
   };
 
   return (
@@ -76,9 +96,24 @@ const SupplierInventory: React.FC = () => {
 
           {/* Transactions list (simple) */}
           <div className="dashboard-card mt-8">
-            <div className="card-header">
-              <h3 className="card-title">Lịch Sử Giao Dịch</h3>
-              <p className="card-subtitle">Các thay đổi gần đây</p>
+            <div className="card-header flex items-center justify-between gap-3">
+              <div>
+                <h3 className="card-title">Lịch Sử Giao Dịch</h3>
+                <p className="card-subtitle">Các thay đổi gần đây</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-gray-600">Lọc loại</label>
+                <select
+                  className="form-select"
+                  value={txTypeFilter}
+                  onChange={(e) => setTxTypeFilter(e.target.value)}
+                >
+                  <option value="">Tất cả</option>
+                  <option value="CustomerSale">Khách mua vật liệu</option>
+                  <option value="SupplierReceipt">Nhà cung cấp nhập kho</option>
+                  <option value="ManualAdjustment">Điều chỉnh thủ công</option>
+                </select>
+              </div>
             </div>
             <div className="card-body overflow-x-auto">
               {transactions.length === 0 ? (
@@ -98,7 +133,7 @@ const SupplierInventory: React.FC = () => {
                     {transactions.map(t => (
                       <tr key={t.transactionId} className="border-t">
                         <td className="p-2">{formatViDateTime(t.createdAt as any)}</td>
-                        <td className="p-2">{t.transactionType}</td>
+                        <td className="p-2">{translateTxType(t.transactionType as any)}</td>
                         <td className="p-2">{t.quantityChange > 0 ? `+${t.quantityChange}` : t.quantityChange}</td>
                         <td className="p-2">{t.beforeQty} → {t.afterQty}</td>
                         <td className="p-2">{t.note || '—'}</td>
@@ -123,6 +158,10 @@ const SupplierInventory: React.FC = () => {
                   <div>
                     <label className="text-sm text-gray-600">Số lượng *</label>
                     <input type="number" value={qty} onChange={(e) => setQty(e.target.value)} className="w-full border rounded p-2" placeholder="0" min={0} step={0.01} />
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600">Ghi chú</label>
+                    <textarea value={note} onChange={(e) => setNote(e.target.value)} className="w-full border rounded p-2" placeholder="Ví dụ: Nhập hàng từ nhà cung cấp A, lô #123" rows={3} />
                   </div>
                   <div className="text-xs text-gray-500">Kho: {warehouseId}</div>
                 </div>

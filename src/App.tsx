@@ -45,6 +45,7 @@ import MaterialsPending from "./pages/admin/MaterialsPending";
 import MaterialsApproved from "./pages/admin/MaterialsApproved";
 import MaterialTypesAll from "./pages/admin/MaterialTypesAll";
 import InventoryReport from "./pages/admin/InventoryReport";
+import UsersAll from "./pages/admin/UsersAll";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import BusinessInfor from "./pages/BusinessInfor";
@@ -334,6 +335,7 @@ function App() {
           }
         >
           <Route index element={<DashboardHome />} />
+          <Route path="users" element={<UsersAll />} />
           <Route path="applications" element={<ApplicationManagement />} />
           <Route path="material-types" element={<MaterialTypesAll />} />
           <Route path="materials" element={<MaterialsAll />} />
