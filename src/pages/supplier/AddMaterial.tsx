@@ -617,7 +617,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     try {
       // Fetch transport calculation details
       const transportResponse = await fetch(
-        `${API_BASE_URL}/api/Material/CalculateTransport/${encodeURIComponent(country)}`
+        `${API_BASE_URL}/Material/CalculateTransport/${encodeURIComponent(country)}`
       );
       if (transportResponse.ok) {
         const transportData = await transportResponse.json();
@@ -634,7 +634,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
       // Fetch available transport methods
       const methodsResponse = await fetch(
-        `${API_BASE_URL}/api/Material/GetAvailableTransportMethods?country=${encodeURIComponent(
+        `${API_BASE_URL}/Material/GetAvailableTransportMethods?country=${encodeURIComponent(
           country
         )}`
       );
