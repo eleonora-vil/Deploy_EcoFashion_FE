@@ -3,10 +3,7 @@ import axios from "axios";
 import type { AxiosResponse } from "axios";
 
 // Determine API base URL based on environment
-const API_BASE_URL = import.meta.env.DEV
-  ? "https://deployecofashionbe-production.up.railway.app/api"
-  : "https://deployecofashionbe-production.up.railway.app/api";
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // Create axios instance with common config
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,

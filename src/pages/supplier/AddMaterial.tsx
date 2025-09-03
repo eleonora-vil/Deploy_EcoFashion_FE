@@ -644,7 +644,7 @@ const AddMaterial: React.FC = () => {
       }
     } catch (error) {
       console.error("Error fetching transport details:", error);
-      // addToast("Lỗi tải thông tin vận chuyển", "error");
+       addToast("Lỗi tải thông tin vận chuyển", "error");
     }
   };
 
