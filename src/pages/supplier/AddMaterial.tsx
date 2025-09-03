@@ -493,7 +493,7 @@ const AddMaterial: React.FC = () => {
 
     return allowed;
   };
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   // Carbon Footprint-based unlocking and suggestions
   const carbonFootprintValue = watch("carbonFootprint") ?? 0;
   const getCarbonBasedUnlockedCertifications = (
@@ -617,7 +617,7 @@ const AddMaterial: React.FC = () => {
     try {
       // Fetch transport calculation details
       const transportResponse = await fetch(
-        `/api/Material/CalculateTransport/${encodeURIComponent(country)}`
+        `${API_BASE_URL}/api/Material/CalculateTransport/${encodeURIComponent(country)}`
       );
       if (transportResponse.ok) {
         const transportData = await transportResponse.json();
@@ -634,7 +634,7 @@ const AddMaterial: React.FC = () => {
 
       // Fetch available transport methods
       const methodsResponse = await fetch(
-        `/api/Material/GetAvailableTransportMethods?country=${encodeURIComponent(
+        `${API_BASE_URL}/api/Material/GetAvailableTransportMethods?country=${encodeURIComponent(
           country
         )}`
       );
