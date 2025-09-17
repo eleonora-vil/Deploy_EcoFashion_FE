@@ -493,7 +493,7 @@ const AddMaterial: React.FC = () => {
 
     return allowed;
   };
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
   // Carbon Footprint-based unlocking and suggestions
   const carbonFootprintValue = watch("carbonFootprint") ?? 0;
   const getCarbonBasedUnlockedCertifications = (
@@ -644,7 +644,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
       }
     } catch (error) {
       console.error("Error fetching transport details:", error);
-       addToast("Lỗi tải thông tin vận chuyển", "error");
+      addToast("Lỗi tải thông tin vận chuyển", "error");
     }
   };
 

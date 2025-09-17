@@ -45,10 +45,12 @@ import { useEffect, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 //Card
 
+
 import FashionsSection from "../components/fashion/FashionsSection";
 import { useNavigate } from "react-router-dom";
 import useMaterial from "../hooks/useMaterial";
 import MaterialsSection from "../components/materials/MaterialsSection";
+
 
 const StyledInput = styled(InputBase)({
   borderRadius: 20,
@@ -57,9 +59,11 @@ const StyledInput = styled(InputBase)({
   flex: 1,
 });
 
+
 export default function Homepage() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
+
 
   // Materials Data using API
   const {
@@ -68,6 +72,7 @@ export default function Homepage() {
     loading: materialsLoading,
     error: materialsError,
   } = useMaterial();
+
 
   //Design Data
   const [designs, setDesigns] = useState<Design[]>([]);
@@ -81,9 +86,11 @@ export default function Homepage() {
   const pageSize = 12;
   const [page, setPage] = useState(currentPage);
 
+
   useEffect(() => {
     loadDesigners();
   }, []);
+
 
   const loadDesigners = async () => {
     try {
@@ -104,13 +111,16 @@ export default function Homepage() {
     }
   };
 
+
   const CountUp = ({ end, duration = 1000 }) => {
     const [count, setCount] = useState(0);
+
 
     useEffect(() => {
       let start = 0;
       const totalSteps = end;
       const stepTime = Math.max(1, Math.floor(duration / totalSteps)); // ensure stepTime ≥ 1ms
+
 
       const timer = setInterval(() => {
         start += 1;
@@ -118,11 +128,14 @@ export default function Homepage() {
         if (start >= end) clearInterval(timer);
       }, stepTime);
 
+
       return () => clearInterval(timer);
     }, [end, duration]);
 
+
     return <>{count.toLocaleString()}</>;
   };
+
 
   return (
     <Box>
@@ -147,15 +160,17 @@ export default function Homepage() {
             textAlign: "center",
             color: "white",
             width: "100%",
-            marginBottom: "100px",
+            marginBottom: { xs: "50px", md: "100px" },
+            px: { xs: 1, sm: 2, md: 0 },
           }}
         >
           <Box
             sx={{
-              width: "80%",
+              width: { xs: "95%", sm: "90%", md: "80%" },
               backgroundColor: "rgba(145, 136, 136, 0.42)",
               margin: "auto",
-              padding: 3,
+              padding: { xs: 2, sm: 2.5, md: 3 },
+              borderRadius: { xs: 1, md: 0 },
             }}
           >
             <Typography
@@ -163,8 +178,13 @@ export default function Homepage() {
               sx={{
                 fontFamily: "'Allura', cursive",
                 fontWeight: 400,
-                fontSize: "5rem",
-                lineHeight: 1.3,
+                fontSize: {
+                  xs: "1.8rem",
+                  sm: "2.5rem",
+                  md: "3.5rem",
+                  lg: "5rem"
+                },
+                lineHeight: { xs: 1.2, md: 1.3 },
               }}
             >
               Kiến Tạo Phong Cách, Gắn Kết Cộng Đồng, Hướng Tới{" "}
@@ -172,7 +192,14 @@ export default function Homepage() {
             </Typography>
           </Box>
           <Typography
-            sx={{ width: "60% ", margin: "auto", fontSize: "25px", mb: 10 }}
+            sx={{
+              width: { xs: "90%", sm: "80%", md: "60%" },
+              margin: "auto",
+              fontSize: { xs: "16px", sm: "20px", md: "25px" },
+              mb: { xs: 5, md: 10 },
+              mt: { xs: 2, md: 0 },
+              px: { xs: 1, md: 0 }
+            }}
           >
             Cùng Tham Gia Thay Đổi Ngành Thời Trang Với Vật Liệu Tái Chế Và
             Thiết Kế Thân Thiện Với Môi Trường
@@ -229,11 +256,12 @@ export default function Homepage() {
           </Box> */}
           {user ? (
             <Stack
-              direction="row"
+              direction={{ xs: "column", sm: "row" }}
               spacing={2}
               justifyContent="center"
-              width={"50%"}
+              width={{ xs: "90%", sm: "80%", md: "50%" }}
               margin={"auto"}
+              sx={{ px: { xs: 2, md: 0 } }}
             >
               <Button
                 variant="outlined"
@@ -244,8 +272,9 @@ export default function Homepage() {
                   alignItems: "center",
                   textAlign: "center",
                   justifyContent: "center",
-                  width: "50%",
-                  marginTop: "30px",
+                  width: { xs: "100%", sm: "50%" },
+                  marginTop: { xs: "20px", md: "30px" },
+                  py: { xs: 1.5, md: 1 },
                 }}
                 href="/fashion"
               >
@@ -326,6 +355,7 @@ export default function Homepage() {
                   Nhà Cung Cấp
                 </Typography>
               </Button>
+
 
               <Button
                 variant="outlined"
@@ -452,6 +482,7 @@ export default function Homepage() {
             </Stack>
           </Box>
 
+
           <Box>
             <Box
               component="img"
@@ -544,6 +575,7 @@ export default function Homepage() {
             thúc đẩy các nguyên tắc kinh tế tuần hoàn và thực hành bền vững.
           </Typography>
 
+
           <List sx={{ mt: 3 }}>
             {/* Item 1 */}
             <ListItem sx={{ alignItems: "flex-start", pl: 0 }}>
@@ -557,6 +589,7 @@ export default function Homepage() {
               </Box>
             </ListItem>
 
+
             {/* Item 2 */}
             <ListItem sx={{ alignItems: "flex-start", pl: 0 }}>
               <EcoIcon />
@@ -568,6 +601,7 @@ export default function Homepage() {
                 </Typography>
               </Box>
             </ListItem>
+
 
             {/* Item 3 */}
             <ListItem sx={{ alignItems: "flex-start", pl: 0 }}>
@@ -582,6 +616,7 @@ export default function Homepage() {
             </ListItem>
           </List>
 
+
           <Button
             variant="contained"
             sx={{
@@ -594,6 +629,7 @@ export default function Homepage() {
             Tìm hiểu thêm ➞
           </Button>
         </Grid>
+
 
         {/* Image Section */}
         <Grid display="flex" justifyContent="center">
@@ -630,6 +666,7 @@ export default function Homepage() {
             Dù bạn là nhà thiết kế, nhà cung cấp hay người có ý thức về Bảo Vệ
             Môi trường, cộng đồng của chúng tôi luôn có chỗ dành cho bạn.
           </Typography>
+
 
           <Stack
             direction="row"
@@ -672,3 +709,6 @@ export default function Homepage() {
     </Box>
   );
 }
+
+
+

@@ -236,6 +236,14 @@ const Navigation: React.FC = () => {
 
   // Subscribe to items so Navigation re-renders on cart change
   const [cartOpen, setCartOpen] = useState(false);
+  // Load active cart for current user when auth changes
+  const syncFromServer = useCartStore((s) => s.syncFromServer);
+  const cartItems = useCartStore((s) => s.items);
+  useEffect(() => {
+    if (user) {
+      syncFromServer().catch(() => { });
+    }
+  }, [user?.userId]);
   // Cart logic moved to PopupCart
 
   // Local state
@@ -454,11 +462,11 @@ const Navigation: React.FC = () => {
 
   return (
     <nav
-      className={`relative top-0 left-0 z-50 transition-all duration-300 ${
-        scrolled || !isHome
-          ? "bg-white shadow-lg text-gray-900"
-          : "bg-white/5 text-white"
-      }`}
+      className={`relative top-0 left-0 z-50 transition-all duration-300 bg-white text-gray-900 shadow 
+        ${scrolled || !isHome
+          ? "lg:bg-white lg:shadow-lg lg:text-gray-900"
+          : "lg:bg-white/5 lg:text-white lg:shadow-none"
+        }`}
     >
       <div className="w-full px-2">
         {/* bỏ padding ngang */}
@@ -487,9 +495,8 @@ const Navigation: React.FC = () => {
             <div className="flex items-center flex-nowrap w-auto space-x-5 p-0 m-0 justify-center">
               <Link
                 to="/"
-                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
-                  scrolled || !isHome ? "text-gray-900" : "text-white"
-                }`}
+                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
+                  }`}
               >
                 TRANG CHỦ
               </Link>
@@ -513,19 +520,17 @@ const Navigation: React.FC = () => {
                     setShopMenuOpen(!shopMenuOpen);
                     setShopDropdownVisible(!shopMenuOpen);
                   }}
-                  className={`navbar-link flex items-center space-x-1 uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
-                    scrolled || !isHome ? "text-gray-900" : "text-white"
-                  }`}
+                  className={`navbar-link flex items-center space-x-1 uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
+                    }`}
                 >
                   <span>CỬA HÀNG</span>
                   <ChevronDownIcon />
                 </button>
                 <div
-                  className={`absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-50 transition-opacity duration-500 ${
-                    shopDropdownVisible && shopMenuOpen
-                      ? "opacity-100 pointer-events-auto"
-                      : "opacity-0 pointer-events-none"
-                  }`}
+                  className={`absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-50 transition-opacity duration-500 ${shopDropdownVisible && shopMenuOpen
+                    ? "opacity-100 pointer-events-auto"
+                    : "opacity-0 pointer-events-none"
+                    }`}
                   onMouseEnter={() => {
                     if (shopDropdownTimer.current)
                       clearTimeout(shopDropdownTimer.current);
@@ -582,19 +587,17 @@ const Navigation: React.FC = () => {
                     setExploreMenuOpen(!exploreMenuOpen);
                     setExploreDropdownVisible(!exploreMenuOpen);
                   }}
-                  className={`navbar-link flex items-center space-x-1 uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
-                    scrolled || !isHome ? "text-gray-900" : "text-white"
-                  }`}
+                  className={`navbar-link flex items-center space-x-1 uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
+                    }`}
                 >
                   <span>KHÁM PHÁ</span>
                   <ChevronDownIcon />
                 </button>
                 <div
-                  className={`absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-50 transition-opacity duration-500 ${
-                    exploreDropdownVisible && exploreMenuOpen
-                      ? "opacity-100 pointer-events-auto"
-                      : "opacity-0 pointer-events-none"
-                  }`}
+                  className={`absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-50 transition-opacity duration-500 ${exploreDropdownVisible && exploreMenuOpen
+                    ? "opacity-100 pointer-events-auto"
+                    : "opacity-0 pointer-events-none"
+                    }`}
                   onMouseEnter={() => {
                     if (exploreDropdownTimer.current)
                       clearTimeout(exploreDropdownTimer.current);
@@ -634,27 +637,24 @@ const Navigation: React.FC = () => {
 
               <Link
                 to="/businessinfor"
-                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
-                  scrolled || !isHome ? "text-gray-900" : "text-white"
-                }`}
+                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
+                  }`}
               >
                 THÔNG TIN KINH DOANH
               </Link>
 
               <Link
                 to="/about"
-                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
-                  scrolled || !isHome ? "text-gray-900" : "text-white"
-                }`}
+                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
+                  }`}
               >
                 VỀ CHÚNG TÔI
               </Link>
 
               <Link
                 to="/contact"
-                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
-                  scrolled || !isHome ? "text-gray-900" : "text-white"
-                }`}
+                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
+                  }`}
                 style={{ whiteSpace: "nowrap" }}
               >
                 LIÊN LẠC
@@ -668,9 +668,8 @@ const Navigation: React.FC = () => {
             <CartWithPopup />
             <button
               onClick={() => navigate("/wallet")}
-              className={`p-2 rounded-lg hover:bg-gray-100 transition-colors ${
-                scrolled || !isHome ? "text-gray-700" : "text-white"
-              }`}
+              className={`p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 ${scrolled || !isHome ? "lg:text-gray-700" : "lg:text-white"
+                }`}
             >
               <WalletIcon className="w-6 h-6 text-inherit hover:text-green-500 transition duration-200" />
             </button>
@@ -687,24 +686,22 @@ const Navigation: React.FC = () => {
                   />
                   <div className="hidden md:block text-left">
                     <p
-                      className={`text-sm font-medium ${
-                        scrolled || !isHome ? "text-gray-900" : "text-white"
-                      }`}
+                      className={`text-sm font-medium ${scrolled || !isHome ? "text-gray-900" : "text-white"
+                        }`}
                     >
                       {getDisplayName()}
                     </p>
                     <p
-                      className={`text-xs ${
-                        scrolled || !isHome ? "text-gray-600" : "text-gray-200"
-                      }`}
+                      className={`text-xs ${scrolled || !isHome ? "text-gray-600" : "text-gray-200"
+                        }`}
                     >
                       {user.role.toLowerCase() === "supplier"
                         ? "Nhà cung cấp"
                         : user.role.toLowerCase() === "designer"
-                        ? "Nhà thiết kế"
-                        : user.role.toLowerCase() === "customer"
-                        ? "Khách Hàng"
-                        : user.role}
+                          ? "Nhà thiết kế"
+                          : user.role.toLowerCase() === "customer"
+                            ? "Khách Hàng"
+                            : user.role}
                     </p>
                   </div>
                 </div>
@@ -713,9 +710,8 @@ const Navigation: React.FC = () => {
                 <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={userMenu.toggle}
-                    className={`p-2 rounded-lg hover:bg-gray-100 transition-colors ${
-                      scrolled || !isHome ? "text-gray-700" : "text-white"
-                    }`}
+                    className={`p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 ${scrolled || !isHome ? "lg:text-gray-700" : "lg:text-white"
+                      }`}
                   >
                     <ChevronDownIcon />
                   </button>
@@ -869,11 +865,10 @@ const Navigation: React.FC = () => {
               <div className="flex items-center space-x-4">
                 <Link
                   to="/login"
-                  className={`px-4 py-2 border border-current rounded-lg hover:bg-white hover:text-gray-900 transition-colors ${
-                    scrolled || !isHome
-                      ? "text-gray-900 border-gray-900"
-                      : "text-white border-white"
-                  }`}
+                  className={`px-4 py-2 border border-current rounded-lg hover:bg-white hover:text-gray-900 transition-colors ${scrolled || !isHome
+                    ? "text-gray-900 border-gray-900"
+                    : "text-white border-white"
+                    }`}
                 >
                   Đăng Nhập
                 </Link>
@@ -883,7 +878,7 @@ const Navigation: React.FC = () => {
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700"
             >
               <MenuIcon />
             </button>
@@ -893,19 +888,98 @@ const Navigation: React.FC = () => {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-t border-gray-200">
+        <div className="lg:hidden bg-white border-top border-gray-200">
           <div className="px-4 py-6 space-y-4">
-            {/* Main menu items */}
-            {mainMenuItems.map((item) => (
-              <Link
-                key={item.label}
-                to={item.path}
-                className="block text-gray-700 hover:text-brand-500 transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {/* Main */}
+            <Link
+              to="/"
+              className="block text-gray-800 hover:text-brand-500 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              TRANG CHỦ
+            </Link>
+
+            {/* Cửa hàng (accordion) */}
+            <button
+              className="w-full flex items-center justify-between text-gray-800 hover:text-brand-500"
+              onClick={() => setShopMenuOpen(!shopMenuOpen)}
+            >
+              <span>CỬA HÀNG</span>
+              <span className={`transition-transform ${shopMenuOpen ? "rotate-180" : ""}`}>
+                <ChevronDownIcon />
+              </span>
+            </button>
+            {shopMenuOpen && (
+              <div className="pl-4 space-y-2">
+                <Link
+                  to="/fashion"
+                  className="block text-gray-700 hover:text-brand-500"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Thời Trang
+                </Link>
+                <Link
+                  to="/materials"
+                  className="block text-gray-700 hover:text-brand-500"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Vật Liệu
+                </Link>
+              </div>
+            )}
+
+            {/* Khám phá (accordion) */}
+            <button
+              className="w-full flex items-center justify-between text-gray-800 hover:text-brand-500"
+              onClick={() => setExploreMenuOpen(!exploreMenuOpen)}
+            >
+              <span>KHÁM PHÁ</span>
+              <span className={`transition-transform ${exploreMenuOpen ? "rotate-180" : ""}`}>
+                <ChevronDownIcon />
+              </span>
+            </button>
+            {exploreMenuOpen && (
+              <div className="pl-4 space-y-2">
+                <Link
+                  to="/explore/designers"
+                  className="block text-gray-700 hover:text-brand-500"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Nhà Thiết Kế
+                </Link>
+                <Link
+                  to="/explore/suppliers"
+                  className="block text-gray-700 hover:text-brand-500"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Nhà Cung Cấp
+                </Link>
+              </div>
+            )}
+
+            {/* Others */}
+            <Link
+              to="/businessinfor"
+              className="block text-gray-800 hover:text-brand-500"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              THÔNG TIN KINH DOANH
+            </Link>
+            <Link
+              to="/about"
+              className="block text-gray-800 hover:text-brand-500"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              VỀ CHÚNG TÔI
+            </Link>
+            <Link
+              to="/contact"
+              className="block text-gray-800 hover:text-brand-500"
+              onClick={() => setMobileMenuOpen(false)}
+              style={{ whiteSpace: "nowrap" }}
+            >
+              LIÊN LẠC
+            </Link>
 
             {/* User menu items */}
             {user &&
@@ -913,7 +987,7 @@ const Navigation: React.FC = () => {
                 <Link
                   key={item.label}
                   to={item.path}
-                  className="w-full flex items-center space-x-3 text-gray-700 hover:text-brand-500 transition-colors"
+                  className="w-full flex items-center space-x-3 text-gray-800 hover:text-brand-500"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {item.icon}
