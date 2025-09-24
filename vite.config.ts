@@ -9,7 +9,7 @@ export default defineConfig({
     // Cấu hình để kết nối với HTTPS backend
     proxy: {
       "/api": {
-        target: "http://localhost:5000",
+        target: "http://localhost:5148",
         changeOrigin: true,
         secure: false, // Bỏ qua SSL certificate validation cho localhost
         configure: (proxy, _options) => {

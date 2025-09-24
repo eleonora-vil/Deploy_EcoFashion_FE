@@ -231,7 +231,7 @@ export default function DesignerDashboard() {
       const errorMessage =
         error.message || "Không thể tải danh sách nhà thiết kế";
       setError(errorMessage);
-      toast.error(errorMessage, { position: "bottom-center" });
+      toast.info(errorMessage, { position: "bottom-center" });
     } finally {
       setLoading(false);
       setPageLoading(false);
@@ -1941,13 +1941,13 @@ export default function DesignerDashboard() {
           try {
             const res = await ProductService.updateProductDetailAsync(payload);
 
-            toast.success("Update Thành Công");
+            toast.success("Thêm Sản Phẩm Thành Công");
             reloadTab();
             reloadTabProduct();
             setOpen(false);
           } catch (err) {
             console.error(err);
-            alert("Không thể tạo sản phẩm");
+            alert("Không thể thêm sản phẩm");
           }
         };
 
@@ -1976,13 +1976,13 @@ export default function DesignerDashboard() {
           // Gọi API thêm vào giỏ hàng
           await addToCart({
             materialId: material.materialId || 0,
-            quantity: finalQuantity,
+            quantity: Math.ceil(finalQuantity),
           });
 
           setOpenCreateDialog(false);
 
           toast.success(
-            `Đã thêm ${finalQuantity} mét ${
+            `Đã thêm ${Math.ceil(finalQuantity)} mét ${
               material.materialName || "Nguyên liệu"
             } vào giỏ hàng!`
           );
@@ -2127,6 +2127,7 @@ export default function DesignerDashboard() {
                               <TableCell align="center">
                                 {m.designerStock} m
                               </TableCell>
+
                               <TableCell align="center">
                                 {isMissing ? (
                                   <Box>
@@ -2142,13 +2143,18 @@ export default function DesignerDashboard() {
                                         )
                                       }
                                     >
-                                      Order
+                                      Đặt hàng
                                     </Button>
                                     <Typography
                                       variant="body2"
                                       color="text.secondary"
                                     >
-                                      NCC còn: {m.supplierStock} m
+                                      NCC còn: {m.supplierStock} m || Cần:{" "}
+                                      {(
+                                        parseFloat(consumption) -
+                                        m.designerStock
+                                      ).toFixed(1)}{" "}
+                                      m
                                     </Typography>
                                   </Box>
                                 ) : (

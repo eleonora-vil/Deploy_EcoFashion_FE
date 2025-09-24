@@ -12,13 +12,13 @@ const CartWithPopup: React.FC<CartWithPopupProps> = () => {
   const [cartOpen, setCartOpen] = React.useState(false);
   const closeTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const [scrolled, setScrolled] = useState(false);
-  const isHome = location.pathname === "/";
-  useEffect(() => {
-    if (!isHome) return;
-    const handleScroll = () => setScrolled(window.scrollY > 100);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isHome]);
+  // const isHome = location.pathname === "/";
+  // useEffect(() => {
+  //   if (!isHome) return;
+  //   const handleScroll = () => setScrolled(window.scrollY > 100);
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => window.removeEventListener("scroll", handleScroll);
+  // }, [isHome]);
   const handleMouseEnter = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
     setCartOpen(true);
@@ -41,9 +41,7 @@ const CartWithPopup: React.FC<CartWithPopupProps> = () => {
       >
         <div className="relative">
           <ShoppingCartIcon
-            className={`w-6 h-6 text-inherit hover:text-green-600 transition duration-200 ${
-              scrolled || !isHome ? "text-gray-700" : "text-white"
-            }`}
+            className={`w-6 h-6 text-inherit hover:text-green-600 transition duration-200 ${"text-gray-700"}`}
           />
           {itemCount > 0 && (
             <span className="absolute -top-2 -right-2 flex items-center justify-center bg-white border-2 border-green-500 text-green-600 text-xs font-bold rounded-full w-5 h-5 shadow-sm select-none">

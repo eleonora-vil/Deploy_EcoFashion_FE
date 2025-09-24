@@ -248,6 +248,15 @@ const WithdrawalModal: React.FC<{
               ))}
             </div>
           </div>
+
+          {/* Lưu ý rút tiền */}
+          <div className="mb-6">
+            <p className="text-sm text-red-600 font-medium">
+              Lưu ý: Bạn chỉ được rút tiền <b>1 lần mỗi tháng</b>. Vui lòng cân
+              nhắc trước khi gửi yêu cầu.
+            </p>
+          </div>
+
           <div className="flex gap-3">
             <button
               type="button"

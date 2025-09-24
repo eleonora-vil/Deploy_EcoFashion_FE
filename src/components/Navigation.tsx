@@ -217,7 +217,7 @@ const SupplierApplyIcon = () => (
 const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const isHome = location.pathname === "/";
+  // const isHome = location.pathname === "/";
 
   // Zustand stores
   const {
@@ -241,7 +241,7 @@ const Navigation: React.FC = () => {
   const cartItems = useCartStore((s) => s.items);
   useEffect(() => {
     if (user) {
-      syncFromServer().catch(() => { });
+      syncFromServer().catch(() => {});
     }
   }, [user?.userId]);
   // Cart logic moved to PopupCart
@@ -257,12 +257,12 @@ const Navigation: React.FC = () => {
   const exploreDropdownTimer = React.useRef<NodeJS.Timeout | null>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   // Scroll effect
-  useEffect(() => {
-    if (!isHome) return;
-    const handleScroll = () => setScrolled(window.scrollY > 100);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isHome]);
+  // useEffect(() => {
+  //   if (!isHome) return;
+  //   const handleScroll = () => setScrolled(window.scrollY > 100);
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => window.removeEventListener("scroll", handleScroll);
+  // }, [isHome]);
 
   // Handle click outside user menu
   useEffect(() => {
@@ -462,11 +462,8 @@ const Navigation: React.FC = () => {
 
   return (
     <nav
-      className={`relative top-0 left-0 z-50 transition-all duration-300 bg-white text-gray-900 shadow 
-        ${scrolled || !isHome
-          ? "lg:bg-white lg:shadow-lg lg:text-gray-900"
-          : "lg:bg-white/5 lg:text-white lg:shadow-none"
-        }`}
+      className={`top-0 left-0 w-full z-50 transition-all duration-300
+    ${"bg-white shadow-lg text-gray-900"}`}
     >
       <div className="w-full px-2">
         {/* bỏ padding ngang */}
@@ -495,8 +492,7 @@ const Navigation: React.FC = () => {
             <div className="flex items-center flex-nowrap w-auto space-x-5 p-0 m-0 justify-center">
               <Link
                 to="/"
-                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
-                  }`}
+                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${"text-gray-900"}`}
               >
                 TRANG CHỦ
               </Link>
@@ -520,17 +516,17 @@ const Navigation: React.FC = () => {
                     setShopMenuOpen(!shopMenuOpen);
                     setShopDropdownVisible(!shopMenuOpen);
                   }}
-                  className={`navbar-link flex items-center space-x-1 uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
-                    }`}
+                  className={`navbar-link flex items-center space-x-1 uppercase tracking-wide px-2 py-1 transition-all duration-300 ${"text-gray-900"}`}
                 >
                   <span>CỬA HÀNG</span>
                   <ChevronDownIcon />
                 </button>
                 <div
-                  className={`absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-50 transition-opacity duration-500 ${shopDropdownVisible && shopMenuOpen
-                    ? "opacity-100 pointer-events-auto"
-                    : "opacity-0 pointer-events-none"
-                    }`}
+                  className={`absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-50 transition-opacity duration-500 ${
+                    shopDropdownVisible && shopMenuOpen
+                      ? "opacity-100 pointer-events-auto"
+                      : "opacity-0 pointer-events-none"
+                  }`}
                   onMouseEnter={() => {
                     if (shopDropdownTimer.current)
                       clearTimeout(shopDropdownTimer.current);
@@ -587,17 +583,17 @@ const Navigation: React.FC = () => {
                     setExploreMenuOpen(!exploreMenuOpen);
                     setExploreDropdownVisible(!exploreMenuOpen);
                   }}
-                  className={`navbar-link flex items-center space-x-1 uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
-                    }`}
+                  className={`navbar-link flex items-center space-x-1 uppercase tracking-wide px-2 py-1 transition-all duration-300 ${"text-gray-900"}`}
                 >
                   <span>KHÁM PHÁ</span>
                   <ChevronDownIcon />
                 </button>
                 <div
-                  className={`absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-50 transition-opacity duration-500 ${exploreDropdownVisible && exploreMenuOpen
-                    ? "opacity-100 pointer-events-auto"
-                    : "opacity-0 pointer-events-none"
-                    }`}
+                  className={`absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 z-50 transition-opacity duration-500 ${
+                    exploreDropdownVisible && exploreMenuOpen
+                      ? "opacity-100 pointer-events-auto"
+                      : "opacity-0 pointer-events-none"
+                  }`}
                   onMouseEnter={() => {
                     if (exploreDropdownTimer.current)
                       clearTimeout(exploreDropdownTimer.current);
@@ -637,24 +633,21 @@ const Navigation: React.FC = () => {
 
               <Link
                 to="/businessinfor"
-                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
-                  }`}
+                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${"text-gray-900"}`}
               >
                 THÔNG TIN KINH DOANH
               </Link>
 
               <Link
                 to="/about"
-                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
-                  }`}
+                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${"text-gray-900"}`}
               >
                 VỀ CHÚNG TÔI
               </Link>
 
               <Link
                 to="/contact"
-                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${scrolled || !isHome ? "text-gray-900" : "text-white"
-                  }`}
+                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${"text-gray-900"}`}
                 style={{ whiteSpace: "nowrap" }}
               >
                 LIÊN LẠC
@@ -668,8 +661,7 @@ const Navigation: React.FC = () => {
             <CartWithPopup />
             <button
               onClick={() => navigate("/wallet")}
-              className={`p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 ${scrolled || !isHome ? "lg:text-gray-700" : "lg:text-white"
-                }`}
+              className={`p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 lg:text-gray-700`}
             >
               <WalletIcon className="w-6 h-6 text-inherit hover:text-green-500 transition duration-200" />
             </button>
@@ -685,23 +677,17 @@ const Navigation: React.FC = () => {
                     size="md"
                   />
                   <div className="hidden md:block text-left">
-                    <p
-                      className={`text-sm font-medium ${scrolled || !isHome ? "text-gray-900" : "text-white"
-                        }`}
-                    >
+                    <p className={`text-sm font-medium ${"text-gray-900"}`}>
                       {getDisplayName()}
                     </p>
-                    <p
-                      className={`text-xs ${scrolled || !isHome ? "text-gray-600" : "text-gray-200"
-                        }`}
-                    >
+                    <p className={`text-xs ${"text-gray-600"}`}>
                       {user.role.toLowerCase() === "supplier"
                         ? "Nhà cung cấp"
                         : user.role.toLowerCase() === "designer"
-                          ? "Nhà thiết kế"
-                          : user.role.toLowerCase() === "customer"
-                            ? "Khách Hàng"
-                            : user.role}
+                        ? "Nhà thiết kế"
+                        : user.role.toLowerCase() === "customer"
+                        ? "Khách Hàng"
+                        : user.role}
                     </p>
                   </div>
                 </div>
@@ -710,8 +696,7 @@ const Navigation: React.FC = () => {
                 <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={userMenu.toggle}
-                    className={`p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 ${scrolled || !isHome ? "lg:text-gray-700" : "lg:text-white"
-                      }`}
+                    className={`p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 ${"lg:text-gray-700"}`}
                   >
                     <ChevronDownIcon />
                   </button>
@@ -866,10 +851,7 @@ const Navigation: React.FC = () => {
                 {/* Login button - Always visible on mobile and desktop */}
                 <Link
                   to="/login"
-                  className={`px-3 py-2 text-sm border border-current rounded-lg hover:bg-white hover:text-gray-900 transition-colors text-gray-900 border-gray-900 ${scrolled || !isHome
-                    ? "lg:text-gray-900 lg:border-gray-900"
-                    : "lg:text-white lg:border-white"
-                    }`}
+                  className={`px-3 py-2 text-sm border border-current rounded-lg hover:bg-white hover:text-gray-900 transition-colors text-gray-900 border-gray-900 ${"lg:text-gray-900 lg:border-gray-900"}`}
                 >
                   Đăng Nhập
                 </Link>
@@ -906,7 +888,11 @@ const Navigation: React.FC = () => {
               onClick={() => setShopMenuOpen(!shopMenuOpen)}
             >
               <span>CỬA HÀNG</span>
-              <span className={`transition-transform ${shopMenuOpen ? "rotate-180" : ""}`}>
+              <span
+                className={`transition-transform ${
+                  shopMenuOpen ? "rotate-180" : ""
+                }`}
+              >
                 <ChevronDownIcon />
               </span>
             </button>
@@ -935,7 +921,11 @@ const Navigation: React.FC = () => {
               onClick={() => setExploreMenuOpen(!exploreMenuOpen)}
             >
               <span>KHÁM PHÁ</span>
-              <span className={`transition-transform ${exploreMenuOpen ? "rotate-180" : ""}`}>
+              <span
+                className={`transition-transform ${
+                  exploreMenuOpen ? "rotate-180" : ""
+                }`}
+              >
                 <ChevronDownIcon />
               </span>
             </button>
