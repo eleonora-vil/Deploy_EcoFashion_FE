@@ -664,7 +664,7 @@ const Navigation: React.FC = () => {
 
           {/* Right side - Icons and User */}
           <div className="flex items-center space-x-2 ml-2">
-            {/* Icons */}
+            {/* Icons - Always visible on mobile and desktop */}
             <CartWithPopup />
             <button
               onClick={() => navigate("/wallet")}
@@ -862,12 +862,13 @@ const Navigation: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                {/* Login button - Always visible on mobile and desktop */}
                 <Link
                   to="/login"
-                  className={`px-4 py-2 border border-current rounded-lg hover:bg-white hover:text-gray-900 transition-colors ${scrolled || !isHome
-                    ? "text-gray-900 border-gray-900"
-                    : "text-white border-white"
+                  className={`px-3 py-2 text-sm border border-current rounded-lg hover:bg-white hover:text-gray-900 transition-colors text-gray-900 border-gray-900 ${scrolled || !isHome
+                    ? "lg:text-gray-900 lg:border-gray-900"
+                    : "lg:text-white lg:border-white"
                     }`}
                 >
                   Đăng Nhập
