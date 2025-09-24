@@ -49,6 +49,11 @@ import FashionsSection from "../components/fashion/FashionsSection";
 import { useNavigate } from "react-router-dom";
 import useMaterial from "../hooks/useMaterial";
 import MaterialsSection from "../components/materials/MaterialsSection";
+import {
+  DesignerService,
+  SupplierService,
+  SupplierSummary,
+} from "../services/api";
 
 const StyledInput = styled(InputBase)({
   borderRadius: 20,
@@ -56,6 +61,19 @@ const StyledInput = styled(InputBase)({
   border: "1px solid #ccc",
   flex: 1,
 });
+
+type DesignerSummaryExtra = {
+  designerId: string;
+  designerName?: string;
+  avatarUrl?: string;
+  bio?: string;
+  bannerUrl?: string;
+  rating?: number;
+  reviewCount?: number;
+  createdAt: string;
+  taxNumber?: string;
+  identificationPictureOwner?: string;
+};
 
 export default function Homepage() {
   const { user } = useAuthStore();
@@ -411,10 +429,18 @@ export default function Homepage() {
             sx={{ maxWidth: 1200, margin: "0 auto" }}
           >
             {[
-              { quantity: materials.length, unit: "+", label: "Vật Liệu" },
-              { quantity: designs.length, unit: "+", label: "Thiết Kế" },
-              { quantity: 1, unit: "+", label: "Nhà Thiết Kế" },
-              { quantity: 1, unit: "+", label: "Nhà Cung Cấp" },
+              { quantity: materials.length || 0, unit: "+", label: "Vật Liệu" },
+              { quantity: designs.length || 0, unit: "+", label: "Thiết Kế" },
+              {
+                quantity: designers.length || 0,
+                unit: "+",
+                label: "Nhà Thiết Kế",
+              },
+              {
+                quantity: suppliers.length || 0,
+                unit: "+",
+                label: "Nhà Cung Cấp",
+              },
             ].map((item, index) => (
               <Grid key={index} textAlign="center">
                 <Typography

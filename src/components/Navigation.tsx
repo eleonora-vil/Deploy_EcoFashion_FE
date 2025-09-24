@@ -461,10 +461,7 @@ const Navigation: React.FC = () => {
   ];
 
   return (
-    <nav
-      className={`top-0 left-0 w-full z-50 transition-all duration-300
-    ${"bg-white shadow-lg text-gray-900"}`}
-    >
+    <nav className="relative top-0 left-0 w-full z-50 transition-all duration-300 bg-white shadow">
       <div className="w-full px-2">
         {/* bỏ padding ngang */}
         <div className="w-full flex justify-between items-center h-16 gap-2">
