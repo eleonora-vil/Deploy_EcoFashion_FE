@@ -217,7 +217,7 @@ const SupplierApplyIcon = () => (
 const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  // const isHome = location.pathname === "/";
+  const isHome = location.pathname === "/";
 
   // Zustand stores
   const {
@@ -461,7 +461,7 @@ const Navigation: React.FC = () => {
   ];
 
   return (
-    <nav className="relative top-0 left-0 w-full z-50 transition-all duration-300 bg-white shadow">
+    <nav className="relative top-0 left-0 w-full z-50 transition-all duration-300 shadow">
       <div className="w-full px-2">
         {/* bỏ padding ngang */}
         <div className="w-full flex justify-between items-center h-16 gap-2">
@@ -489,7 +489,9 @@ const Navigation: React.FC = () => {
             <div className="flex items-center flex-nowrap w-auto space-x-5 p-0 m-0 justify-center">
               <Link
                 to="/"
-                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${"text-gray-900"}`}
+                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
+                  !isHome ? "text-gray-900" : "text-white"
+                }`}
               >
                 TRANG CHỦ
               </Link>
@@ -513,7 +515,9 @@ const Navigation: React.FC = () => {
                     setShopMenuOpen(!shopMenuOpen);
                     setShopDropdownVisible(!shopMenuOpen);
                   }}
-                  className={`navbar-link flex items-center space-x-1 uppercase tracking-wide px-2 py-1 transition-all duration-300 ${"text-gray-900"}`}
+                  className={`navbar-link flex items-center space-x-1 uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
+                    !isHome ? "text-gray-900" : "text-white"
+                  }`}
                 >
                   <span>CỬA HÀNG</span>
                   <ChevronDownIcon />
@@ -580,7 +584,9 @@ const Navigation: React.FC = () => {
                     setExploreMenuOpen(!exploreMenuOpen);
                     setExploreDropdownVisible(!exploreMenuOpen);
                   }}
-                  className={`navbar-link flex items-center space-x-1 uppercase tracking-wide px-2 py-1 transition-all duration-300 ${"text-gray-900"}`}
+                  className={`navbar-link flex items-center space-x-1 uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
+                    !isHome ? "text-gray-900" : "text-white"
+                  }`}
                 >
                   <span>KHÁM PHÁ</span>
                   <ChevronDownIcon />
@@ -630,21 +636,27 @@ const Navigation: React.FC = () => {
 
               <Link
                 to="/businessinfor"
-                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${"text-gray-900"}`}
+                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
+                  !isHome ? "text-gray-900" : "text-white"
+                }`}
               >
                 THÔNG TIN KINH DOANH
               </Link>
 
               <Link
                 to="/about"
-                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${"text-gray-900"}`}
+                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
+                  !isHome ? "text-gray-900" : "text-white"
+                }`}
               >
                 VỀ CHÚNG TÔI
               </Link>
 
               <Link
                 to="/contact"
-                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${"text-gray-900"}`}
+                className={`navbar-link uppercase tracking-wide px-2 py-1 transition-all duration-300 ${
+                  !isHome ? "text-gray-900" : "text-white"
+                }`}
                 style={{ whiteSpace: "nowrap" }}
               >
                 LIÊN LẠC
@@ -658,7 +670,9 @@ const Navigation: React.FC = () => {
             <CartWithPopup />
             <button
               onClick={() => navigate("/wallet")}
-              className={`p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 lg:text-gray-700`}
+              className={`p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 ${
+                !isHome ? "lg:text-gray-700" : "lg:text-white"
+              }`}
             >
               <WalletIcon className="w-6 h-6 text-inherit hover:text-green-500 transition duration-200" />
             </button>
@@ -674,10 +688,18 @@ const Navigation: React.FC = () => {
                     size="md"
                   />
                   <div className="hidden md:block text-left">
-                    <p className={`text-sm font-medium ${"text-gray-900"}`}>
+                    <p
+                      className={`text-sm font-medium ${
+                        !isHome ? "text-gray-900" : "text-white"
+                      }`}
+                    >
                       {getDisplayName()}
                     </p>
-                    <p className={`text-xs ${"text-gray-600"}`}>
+                    <p
+                      className={`text-xs ${
+                        !isHome ? "text-gray-600" : "text-gray-200"
+                      }`}
+                    >
                       {user.role.toLowerCase() === "supplier"
                         ? "Nhà cung cấp"
                         : user.role.toLowerCase() === "designer"
@@ -693,7 +715,9 @@ const Navigation: React.FC = () => {
                 <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={userMenu.toggle}
-                    className={`p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 ${"lg:text-gray-700"}`}
+                    className={`p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 ${
+                      !isHome ? "text-gray-900" : "text-white"
+                    }`}
                   >
                     <ChevronDownIcon />
                   </button>
@@ -848,7 +872,11 @@ const Navigation: React.FC = () => {
                 {/* Login button - Always visible on mobile and desktop */}
                 <Link
                   to="/login"
-                  className={`px-3 py-2 text-sm border border-current rounded-lg hover:bg-white hover:text-gray-900 transition-colors text-gray-900 border-gray-900 ${"lg:text-gray-900 lg:border-gray-900"}`}
+                  className={`px-3 py-2 text-sm border border-current rounded-lg hover:bg-white hover:text-gray-900 transition-colors text-gray-900 border-gray-900 ${
+                    !isHome
+                      ? "lg:text-gray-900 lg:border-gray-900"
+                      : "lg:text-white lg:border-white"
+                  }`}
                 >
                   Đăng Nhập
                 </Link>
