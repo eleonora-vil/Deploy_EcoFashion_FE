@@ -203,35 +203,54 @@ export default function DesignerDashboard() {
   }, []);
 
   const loadDesigners = async () => {
+    setLoading(true);
+    setPageLoading(true);
+    setError(null);
+
     try {
-      setLoading(true);
-      setPageLoading(true);
-      setError(null);
+      try {
+        const inventoryTransactionsData =
+          await InventoryTransactionsService.getAllMaterialInventoryByDesigner();
+        setInventoryTransactions(inventoryTransactionsData);
+      } catch (err: any) {
+        console.error("Inventory error:", err);
+        toast.info("Không thể tải kho nguyên liệu");
+      }
 
-      const inventoryTransactionsData =
-        await InventoryTransactionsService.getAllMaterialInventoryByDesigner();
-      setInventoryTransactions(inventoryTransactionsData);
+      try {
+        const materialData = await DesignService.getStoredMaterial();
+        setStoredMaterial(materialData);
+        console.log("materialData: ", materialData);
+      } catch (err: any) {
+        console.error("Material error:", err);
+        toast.info("Chưa có vật liệu đã lưu");
+      }
 
-      const materialData = await DesignService.getStoredMaterial();
-      setStoredMaterial(materialData);
-      console.log("materialData: ", materialData);
+      try {
+        const fetchedOrders = await ordersService.getOrdersBySeller(
+          designerProfile.designerId
+        );
+        setOrders(fetchedOrders || []);
+      } catch (err: any) {
+        console.error("Orders error:", err);
+        toast.info("Chưa có đơn hàng");
+      }
 
-      //Get Order
-      const fetchedOrders = await ordersService.getOrdersBySeller(
-        designerProfile.designerId
-      );
-      setOrders(fetchedOrders || []);
+      try {
+        const designData = await DesignService.getAllDesignByDesigner();
+        setDesigns(designData);
+      } catch (err: any) {
+        console.error("Design error:", err);
+        toast.info("Chưa có danh sách thiết kế");
+      }
 
-      const designData = await DesignService.getAllDesignByDesigner();
-      setDesigns(designData);
-
-      const designProductData = await DesignService.getAllDesignProuct();
-      setDesignProduct(designProductData);
-    } catch (error: any) {
-      const errorMessage =
-        error.message || "Không thể tải danh sách nhà thiết kế";
-      setError(errorMessage);
-      toast.info(errorMessage, { position: "bottom-center" });
+      try {
+        const designProductData = await DesignService.getAllDesignProuct();
+        setDesignProduct(designProductData);
+      } catch (err: any) {
+        console.error("Design Product error:", err);
+        toast.info("Chưa có sản phẩm thiết kế");
+      }
     } finally {
       setLoading(false);
       setPageLoading(false);

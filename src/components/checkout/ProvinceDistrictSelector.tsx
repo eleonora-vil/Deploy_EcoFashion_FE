@@ -191,7 +191,7 @@ const ProvinceDistrictSelector: React.FC<ProvinceDistrictSelectorProps> = ({
       {/* District Selector */}
       <div className="relative">
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Quận/Huyện *
+          Chọn vùng *
           {provinceDetailsLoading && (
             <span className="text-xs text-blue-600 ml-1">(Đang tải...)</span>
           )}

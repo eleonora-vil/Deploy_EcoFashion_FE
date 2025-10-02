@@ -6,7 +6,6 @@ function safeImageUrl(
   return typeof url === "string" && url.trim() ? url : fallback;
 }
 import {
-  AppBar,
   Box,
   Button,
   Grid,
@@ -15,22 +14,12 @@ import {
   ListItem,
   List,
   Container,
-  IconButton,
-  Card,
-  Chip,
-  CardMedia,
-  CardContent,
-  Rating,
-  Select,
-  MenuItem,
-  Link,
   InputBase,
   Divider,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 //Image
 import banner from "../assets/pictures/homepage/banner.jpg";
-import post from "../assets/pictures/homepage/product-post.png";
 import fashion from "../assets/pictures/homepage/fashion.png";
 import material from "../assets/pictures/homepage/material.png";
 import information from "../assets/pictures/homepage/information.png";
@@ -82,7 +71,6 @@ export default function Homepage() {
   // Materials Data using API
   const {
     materials,
-    filteredMaterials,
     loading: materialsLoading,
     error: materialsError,
   } = useMaterial();
@@ -320,6 +308,7 @@ export default function Homepage() {
                     justifyContent: "center",
                     width: "50%",
                   }}
+                  href="/materials"
                 >
                   <Typography
                     sx={{

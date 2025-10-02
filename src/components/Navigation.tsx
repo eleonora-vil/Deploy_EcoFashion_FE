@@ -9,9 +9,6 @@ import { useCartStore } from "../store/cartStore";
 import { WalletIcon } from "@heroicons/react/24/outline";
 import Avatar from "./common/Avatar";
 
-// Icons
-import logo from "../assets/img/svg/logo-light.svg";
-import logoLight from "../assets/img/svg/logo-light.svg";
 const MenuIcon = () => (
   <svg
     className="h-6 w-6"
@@ -232,7 +229,7 @@ const Navigation: React.FC = () => {
     isDesigner,
   } = useAuthStore();
 
-  const { userMenu, notifications } = useUIStore();
+  const { userMenu } = useUIStore();
 
   // Subscribe to items so Navigation re-renders on cart change
   const [cartOpen, setCartOpen] = useState(false);
@@ -715,8 +712,8 @@ const Navigation: React.FC = () => {
                 <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={userMenu.toggle}
-                    className={`p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700 ${
-                      !isHome ? "text-gray-900" : "text-white"
+                    className={`p-2 rounded-lg hover:bg-gray-100 transition-colors ${
+                      !isHome ? "text-gray-900" : "text-gray-900 lg:text-white"
                     }`}
                   >
                     <ChevronDownIcon />

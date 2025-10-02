@@ -27,8 +27,6 @@ const Avatar: React.FC<AvatarProps> = ({
     setImageError(true);
   };
 
-  const isHome = location.pathname === "/";
-
   return (
     <div
       className={`rounded-full bg-brand-500 flex items-center justify-center overflow-hidden ${sizeClasses[size]} ${className}`}
@@ -41,9 +39,7 @@ const Avatar: React.FC<AvatarProps> = ({
           onError={handleImageError}
         />
       ) : (
-        <span className={`font-medium ${isHome ? "text-white" : "text-black"}`}>
-          {fallbackText}
-        </span>
+        <span className="font-medium text-black">{fallbackText}</span>
       )}
     </div>
   );

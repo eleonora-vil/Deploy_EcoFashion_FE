@@ -629,7 +629,7 @@ export default function AddDesignDraft() {
     try {
       setLoading(true);
       const result = await DesignService.createDesignDraft(payload);
-      toast.success("Gửi đơn thành công!");
+      toast.success("Thiết kế rập thành công!");
       navigate("/designer/dashboard?tab=design");
     } catch (err: any) {
       console.error("❌ Error submitting application:", err);
