@@ -35,10 +35,11 @@ import {
   Close,
 } from "@mui/icons-material";
 import { materialService } from "../../services/api/materialService";
+import { reviewService, Review } from "../../services/api/reviewService";
 import { useCartStore } from "../../store/cartStore";
 import { toast } from "react-toastify";
 import SustainabilityToolbar from "../../components/materials/SustainabilityToolbar";
-import SustainabilityCompact from "../../components/materials/SustainabilityCompact";
+//import SustainabilityCompact from "../../components/materials/SustainabilityCompact";
 import ProductionInfo from "../../components/materials/ProductionInfo";
 import {
   getSustainabilityColor,
@@ -123,6 +124,11 @@ const MaterialDetailPage: React.FC = () => {
   const [dragging, setDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [lastPos, setLastPos] = useState({ x: 0, y: 0 });
+
+  // Review states
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [averageRating, setAverageRating] = useState<number>(0);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
   // Hover magnifier state
   const imgRef = useRef<HTMLImageElement | null>(null);
   const [hovering, setHovering] = useState(false);
@@ -173,6 +179,24 @@ const MaterialDetailPage: React.FC = () => {
             setRelatedMaterials([]);
           }
         }
+
+        // Fetch reviews for this material
+        try {
+          setReviewsLoading(true);
+          const [reviewsData, avgRating] = await Promise.all([
+            reviewService.getReviews(parseInt(id)),
+            reviewService.getAverageScore(parseInt(id), false),
+          ]);
+          setReviews(reviewsData);
+          setAverageRating(avgRating);
+        } catch (reviewError) {
+          console.error("Error fetching reviews:", reviewError);
+          // Continue without reviews
+          setReviews([]);
+          setAverageRating(0);
+        } finally {
+          setReviewsLoading(false);
+        }
       } catch (err) {
         setError("Không thể tải thông tin nguyên liệu");
         console.error("Error fetching material:", err);
@@ -184,10 +208,10 @@ const MaterialDetailPage: React.FC = () => {
     fetchMaterial();
   }, [id]);
 
-  const getTypeColor = (typeName?: string) => {
-    if (!typeName) return "#9e9e9e";
-    return getMaterialTypeColor(typeName);
-  };
+  // const getTypeColor = (typeName?: string) => {
+  //   if (!typeName) return "#9e9e9e";
+  //   return getMaterialTypeColor(typeName);
+  // };
 
   const getSustainabilityScore = () => {
     if (
@@ -309,10 +333,10 @@ const MaterialDetailPage: React.FC = () => {
     (sustainabilityScore >= 80
       ? "Xuất sắc"
       : sustainabilityScore >= 60
-        ? "Tốt"
-        : sustainabilityScore >= 40
-          ? "Trung bình"
-          : "Cần cải thiện");
+      ? "Tốt"
+      : sustainabilityScore >= 40
+      ? "Trung bình"
+      : "Cần cải thiện");
 
   const sustainabilityColor =
     material.sustainabilityColor || getSustainabilityColor(sustainabilityScore);
@@ -434,15 +458,18 @@ const MaterialDetailPage: React.FC = () => {
                     borderRadius: 2,
                     border: "1px solid #e0e0e0",
                     backgroundColor: "#fff",
-                    backgroundImage: `url(${material.imageUrls && material.imageUrls.length > 0
-                      ? material.imageUrls[currentImageIndex] || mainImage
-                      : mainImage
-                      })`,
+                    backgroundImage: `url(${
+                      material.imageUrls && material.imageUrls.length > 0
+                        ? material.imageUrls[currentImageIndex] || mainImage
+                        : mainImage
+                    })`,
                     backgroundRepeat: "no-repeat",
-                    backgroundSize: `${imgSize.w * hoverZoom}px ${imgSize.h * hoverZoom
-                      }px`,
-                    backgroundPosition: `${(hoverPos.x / imgSize.w) * 100}% ${(hoverPos.y / imgSize.h) * 100
-                      }%`,
+                    backgroundSize: `${imgSize.w * hoverZoom}px ${
+                      imgSize.h * hoverZoom
+                    }px`,
+                    backgroundPosition: `${(hoverPos.x / imgSize.w) * 100}% ${
+                      (hoverPos.y / imgSize.h) * 100
+                    }%`,
                     boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
                     zIndex: 1300,
                     pointerEvents: "none",
@@ -642,8 +669,8 @@ const MaterialDetailPage: React.FC = () => {
                 color="text.secondary"
                 sx={{ mb: 2, display: "block" }}
               >
-                📐 Phân loại kích cỡ (ước tính khổ vải 1m): 1m ≈ (1 × 1m),
-                2m ≈ (2 × 1m), 3m ≈ (3 × 1m)
+                📐 Phân loại kích cỡ (ước tính khổ vải 1m): 1m ≈ (1 × 1m), 2m ≈
+                (2 × 1m), 3m ≈ (3 × 1m)
               </Typography>
 
               <Box
@@ -693,15 +720,15 @@ const MaterialDetailPage: React.FC = () => {
                   variant="outlined"
                   size="large"
                   onClick={() =>
-                    navigate(`/explore/supplier/${material.supplier?.supplierId || 0}`)
+                    navigate(
+                      `/explore/supplier/${material.supplier?.supplierId || 0}`
+                    )
                   }
                 >
                   Xem hồ sơ
                 </Button>
               </Box>
             </Box>
-
-
           </Box>
         </Box>
 
@@ -724,18 +751,18 @@ const MaterialDetailPage: React.FC = () => {
             <Tab label="Tài liệu" />
           </Tabs>
 
-
-
           {/* Tab Content */}
           <Box sx={{ p: 4 }}>
             {/* Tab 1: Thông tin chi tiết và thông số kỹ thuật */}
             {tabIndex === 0 && (
               <Box>
-                <Box sx={{
-                  display: 'flex',
-                  flexDirection: { xs: 'column', md: 'row' },
-                  width: '100%'
-                }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", md: "row" },
+                    width: "100%",
+                  }}
+                >
                   {/* Left Column - Description */}
                   <Box sx={{ flex: 1, pr: { md: 1 } }}>
                     <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
@@ -748,41 +775,51 @@ const MaterialDetailPage: React.FC = () => {
                           sx={{
                             lineHeight: 1.7,
                             whiteSpace: "pre-wrap",
-                            color: "text.primary"
+                            color: "text.primary",
                           }}
                         >
                           {material.description}
                         </Typography>
                       ) : (
-                        <Typography variant="body2" color="text.secondary" fontStyle="italic">
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          fontStyle="italic"
+                        >
                           Chưa có mô tả chi tiết cho nguyên liệu này.
                         </Typography>
                       )}
                     </Card>
 
-
                     {/* Thông tin sản xuất */}
                     {(material.productionCountry ||
                       material.productionRegion ||
                       material.manufacturingProcess) && (
-                        <Card sx={{ p: 3, mb: 3 }}>
-                          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-                            Thông tin sản xuất
-                          </Typography>
-                          <ProductionInfo
-                            country={material.productionCountry}
-                            region={material.productionRegion}
-                            process={material.manufacturingProcess}
-                            showDescription={true}
-                          />
-                        </Card>
-                      )}
-
+                      <Card sx={{ p: 3, mb: 3 }}>
+                        <Typography
+                          variant="h6"
+                          fontWeight="bold"
+                          sx={{ mb: 2 }}
+                        >
+                          Thông tin sản xuất
+                        </Typography>
+                        <ProductionInfo
+                          country={material.productionCountry}
+                          region={material.productionRegion}
+                          process={material.manufacturingProcess}
+                          showDescription={true}
+                        />
+                      </Card>
+                    )}
 
                     {/* Chứng nhận bền vững */}
                     {material.certificationDetails && (
                       <Card sx={{ p: 3 }}>
-                        <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+                        <Typography
+                          variant="h6"
+                          fontWeight="bold"
+                          sx={{ mb: 2 }}
+                        >
                           Chứng nhận bền vững
                         </Typography>
                         <CertificationDetails
@@ -792,7 +829,6 @@ const MaterialDetailPage: React.FC = () => {
                     )}
                   </Box>
 
-
                   {/* Right Column - Technical Specifications */}
                   <Box sx={{ flex: 1, pl: { md: 1 } }}>
                     <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
@@ -800,7 +836,11 @@ const MaterialDetailPage: React.FC = () => {
                     </Typography>
 
                     <Card sx={{ p: 3, mb: 3 }}>
-                      <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight="bold"
+                        sx={{ mb: 2, color: "primary.main" }}
+                      >
                         Tính bền vững
                       </Typography>
                       <List dense>
@@ -821,9 +861,12 @@ const MaterialDetailPage: React.FC = () => {
                       </List>
                     </Card>
 
-
                     <Card sx={{ p: 3, mb: 3 }}>
-                      <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight="bold"
+                        sx={{ mb: 2, color: "primary.main" }}
+                      >
                         Thông tin thương mại
                       </Typography>
                       <List dense>
@@ -855,22 +898,29 @@ const MaterialDetailPage: React.FC = () => {
                       </List>
                     </Card>
 
-
                     <Card sx={{ p: 3 }}>
-                      <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight="bold"
+                        sx={{ mb: 2, color: "primary.main" }}
+                      >
                         Thông tin hệ thống
                       </Typography>
                       <List dense>
                         <ListItem sx={{ px: 0 }}>
                           <ListItemText
                             primary="Mã nguyên liệu"
-                            secondary={`M${(material.materialId || 0)?.toString().padStart(3, "0")}`}
+                            secondary={`M${(material.materialId || 0)
+                              ?.toString()
+                              .padStart(3, "0")}`}
                           />
                         </ListItem>
                         <ListItem sx={{ px: 0 }}>
                           <ListItemText
                             primary="Loại vật liệu"
-                            secondary={material.materialTypeName || "Chưa phân loại"}
+                            secondary={
+                              material.materialTypeName || "Chưa phân loại"
+                            }
                           />
                         </ListItem>
                         <ListItem sx={{ px: 0 }}>
@@ -878,9 +928,9 @@ const MaterialDetailPage: React.FC = () => {
                             primary="Ngày tạo"
                             secondary={
                               material.createdAt
-                                ? new Date(material.createdAt).toLocaleDateString(
-                                  "vi-VN"
-                                )
+                                ? new Date(
+                                    material.createdAt
+                                  ).toLocaleDateString("vi-VN")
                                 : "Chưa có thông tin"
                             }
                           />
@@ -890,9 +940,9 @@ const MaterialDetailPage: React.FC = () => {
                             primary="Cập nhật lần cuối"
                             secondary={
                               material.lastUpdated
-                                ? new Date(material.lastUpdated).toLocaleDateString(
-                                  "vi-VN"
-                                )
+                                ? new Date(
+                                    material.lastUpdated
+                                  ).toLocaleDateString("vi-VN")
                                 : "Chưa có thông tin"
                             }
                           />
@@ -904,14 +954,12 @@ const MaterialDetailPage: React.FC = () => {
               </Box>
             )}
 
-
             {/* Tab 2: Tính bền vững */}
             {tabIndex === 1 && (
               <Box>
                 <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
                   Thông tin bền vững
                 </Typography>
-
 
                 {/* Tổng quan điểm bền vững */}
                 <Box sx={{ mb: 4, p: 3, bgcolor: "#f8f9fa", borderRadius: 2 }}>
@@ -973,10 +1021,10 @@ const MaterialDetailPage: React.FC = () => {
                                     score >= 80
                                       ? "green"
                                       : score >= 60
-                                        ? "#FFD700"
-                                        : score >= 40
-                                          ? "orange"
-                                          : "red";
+                                      ? "#FFD700"
+                                      : score >= 40
+                                      ? "orange"
+                                      : "red";
 
                                   return (
                                     <Box
@@ -1016,9 +1064,10 @@ const MaterialDetailPage: React.FC = () => {
                                       ? benchmark.value >= 1
                                         ? "Có"
                                         : "Không"
-                                      : `${benchmark.value} ${benchmark.sustainabilityCriteria
-                                        ?.unit || ""
-                                      }`}
+                                      : `${benchmark.value} ${
+                                          benchmark.sustainabilityCriteria
+                                            ?.unit || ""
+                                        }`}
                                   </Typography>
                                 </Box>
 
@@ -1043,9 +1092,10 @@ const MaterialDetailPage: React.FC = () => {
                                           ? benchmark.actualValue >= 1
                                             ? "Có"
                                             : "Không"
-                                          : `${benchmark.actualValue} ${benchmark.sustainabilityCriteria
-                                            ?.unit || ""
-                                          }`}
+                                          : `${benchmark.actualValue} ${
+                                              benchmark.sustainabilityCriteria
+                                                ?.unit || ""
+                                            }`}
                                       </Typography>
                                     </Box>
                                   )}
@@ -1053,7 +1103,7 @@ const MaterialDetailPage: React.FC = () => {
                                 {/* So sánh cải thiện */}
                                 {benchmark.improvementPercentage !== null &&
                                   benchmark.improvementPercentage !==
-                                  undefined && (
+                                    undefined && (
                                     <Box
                                       sx={{
                                         display: "flex",
@@ -1069,24 +1119,26 @@ const MaterialDetailPage: React.FC = () => {
                                         fontWeight="bold"
                                         color={
                                           benchmark.improvementColor ===
-                                            "success"
+                                          "success"
                                             ? "success.main"
                                             : benchmark.improvementColor ===
                                               "error"
-                                              ? "error.main"
-                                              : "warning.main"
+                                            ? "error.main"
+                                            : "warning.main"
                                         }
                                       >
                                         {benchmark.criteriaId === 4
                                           ? `(${benchmark.improvementStatus})`
-                                          : `${benchmark.improvementPercentage >
-                                            0
-                                            ? "+"
-                                            : ""
-                                          }${benchmark.improvementPercentage.toFixed(
-                                            1
-                                          )}% (${benchmark.improvementStatus
-                                          })`}
+                                          : `${
+                                              benchmark.improvementPercentage >
+                                              0
+                                                ? "+"
+                                                : ""
+                                            }${benchmark.improvementPercentage.toFixed(
+                                              1
+                                            )}% (${
+                                              benchmark.improvementStatus
+                                            })`}
                                       </Typography>
                                     </Box>
                                   )}
@@ -1171,10 +1223,10 @@ const MaterialDetailPage: React.FC = () => {
                                               transportDetail.score >= 80
                                                 ? "green"
                                                 : transportDetail.score >= 60
-                                                  ? "#FFD700"
-                                                  : transportDetail.score >= 40
-                                                    ? "orange"
-                                                    : "red",
+                                                ? "#FFD700"
+                                                : transportDetail.score >= 40
+                                                ? "orange"
+                                                : "red",
                                           }}
                                         >
                                           {transportDetail.score.toFixed(1)}%
@@ -1368,8 +1420,8 @@ const MaterialDetailPage: React.FC = () => {
                                         detail.score >= 80
                                           ? "green"
                                           : detail.score >= 60
-                                            ? "orange"
-                                            : "red",
+                                          ? "orange"
+                                          : "red",
                                       fontWeight: "bold",
                                     }}
                                   >
@@ -1524,9 +1576,119 @@ const MaterialDetailPage: React.FC = () => {
                 <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
                   Đánh giá từ khách hàng
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Chưa có đánh giá cho nguyên liệu này.
-                </Typography>
+
+                {reviewsLoading ? (
+                  <Typography variant="body2" color="text.secondary">
+                    Đang tải đánh giá...
+                  </Typography>
+                ) : (
+                  <>
+                    {/* Average Rating Summary */}
+                    <Box
+                      sx={{
+                        mb: 4,
+                        p: 3,
+                        bgcolor: "#f8f9fa",
+                        borderRadius: 2,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 3,
+                      }}
+                    >
+                      <Box sx={{ textAlign: "center" }}>
+                        <Typography
+                          variant="h2"
+                          fontWeight="bold"
+                          color="primary"
+                        >
+                          {averageRating > 0 ? averageRating.toFixed(1) : "0.0"}
+                        </Typography>
+                        <Rating
+                          value={averageRating}
+                          readOnly
+                          precision={0.1}
+                          size="large"
+                        />
+                        <Typography variant="body2" color="text.secondary">
+                          {reviews.length} đánh giá
+                        </Typography>
+                      </Box>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="body1" color="text.secondary">
+                          {reviews.length === 0
+                            ? "Chưa có đánh giá nào cho nguyên liệu này."
+                            : `Dựa trên ${reviews.length} đánh giá từ khách hàng đã mua.`}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    {/* Reviews List */}
+                    {reviews.length > 0 && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 2,
+                        }}
+                      >
+                        {reviews.map((review) => (
+                          <Card key={review.reviewId} sx={{ p: 3 }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                                gap: 2,
+                              }}
+                            >
+                              <Avatar sx={{ bgcolor: "primary.main" }}>
+                                {review.userName?.[0] || "U"}
+                              </Avatar>
+                              <Box sx={{ flex: 1 }}>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    mb: 1,
+                                  }}
+                                >
+                                  <Typography
+                                    variant="subtitle1"
+                                    fontWeight="bold"
+                                  >
+                                    {review.userName || "Người dùng ẩn danh"}
+                                  </Typography>
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                  >
+                                    {review.createdAt
+                                      ? new Date(
+                                          review.createdAt
+                                        ).toLocaleDateString("vi-VN")
+                                      : ""}
+                                  </Typography>
+                                </Box>
+                                <Rating
+                                  value={review.ratingScore}
+                                  readOnly
+                                  size="small"
+                                  sx={{ mb: 1 }}
+                                />
+                                <Typography
+                                  variant="body2"
+                                  color="text.primary"
+                                >
+                                  {review.comment}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Card>
+                        ))}
+                      </Box>
+                    )}
+                  </>
+                )}
               </Box>
             )}
 
@@ -1579,7 +1741,7 @@ const MaterialDetailPage: React.FC = () => {
                         component="img"
                         src={
                           relatedMaterial.imageUrls &&
-                            relatedMaterial.imageUrls.length > 0
+                          relatedMaterial.imageUrls.length > 0
                             ? relatedMaterial.imageUrls[0]
                             : ""
                         }
@@ -1699,5 +1861,3 @@ const MaterialDetailPage: React.FC = () => {
 };
 
 export default MaterialDetailPage;
-
-

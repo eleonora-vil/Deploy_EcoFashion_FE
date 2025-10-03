@@ -62,7 +62,7 @@ import WalletPageTailwind from "./pages/wallet/WalletPageTailwind";
 import VNPaySuccess from "./pages/payment/VNPaySuccess";
 import { useAuthStore } from "./store/authStore";
 import { useCartStore } from "./store/cartStore";
-import { ConfirmProvider } from "material-ui-confirm";
+//import { ConfirmProvider } from "material-ui-confirm";
 import MaterialList from "./pages/material/MaterialList";
 import WalletWithdraw from "./pages/admin/WalletWithdraw";
 //import ProtectedRoute from "./components/ProtectedRoute";
@@ -145,7 +145,13 @@ function App() {
           path="/orders"
           element={
             <ProtectedRoute
-              allowedRoles={["customer", "supplier", "designer", "admin", "user"]}
+              allowedRoles={[
+                "customer",
+                "supplier",
+                "designer",
+                "admin",
+                "user",
+              ]}
             >
               <OrdersPage />
             </ProtectedRoute>

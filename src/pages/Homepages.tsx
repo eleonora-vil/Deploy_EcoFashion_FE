@@ -32,6 +32,8 @@ import { toast } from "react-toastify";
 import { AddToCart, EcoIcon, FavoriteBorderIcon } from "../assets/icons/icon";
 import { useEffect, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import { Fab } from "@mui/material";
 //Card
 
 import FashionsSection from "../components/fashion/FashionsSection";
@@ -88,6 +90,21 @@ export default function Homepage() {
   const [totalPage, setTotalPage] = useState<number>();
   const pageSize = 12;
   const [page, setPage] = useState(currentPage);
+
+  // Scroll to top state
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   useEffect(() => {
     loadDesigners();
@@ -722,6 +739,31 @@ export default function Homepage() {
           </Stack>
         </Container>
       </Box>
+
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <Fab
+          size="medium"
+          onClick={scrollToTop}
+          sx={{
+            position: "fixed",
+            bottom: 32,
+            right: 32,
+            zIndex: 1000,
+            boxShadow: 3,
+            backgroundColor: "#4CAF50", // Green color for Eco theme
+            color: "white",
+            borderRadius: 2, // Square shape instead of circle
+            "&:hover": {
+              backgroundColor: "#45a049",
+              transform: "scale(1.1)",
+              transition: "transform 0.2s",
+            },
+          }}
+        >
+          <KeyboardArrowUpIcon />
+        </Fab>
+      )}
     </Box>
   );
 }

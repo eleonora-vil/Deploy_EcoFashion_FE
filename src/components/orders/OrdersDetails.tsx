@@ -5,6 +5,7 @@ import {
   shipmentService,
   ShipmentTrackingResponse,
 } from "../../services/api/shipmentService";
+import { reviewService } from "../../services/api/reviewService";
 import { formatViDateTime } from "../../utils/date";
 //import { paymentsService } from '../../services/api/paymentsService';
 import {
@@ -16,6 +17,8 @@ import {
   DialogContent,
   DialogActions,
   Typography,
+  TextField,
+  Rating,
 } from "@mui/material";
 import {
   LocalShipping,
@@ -26,6 +29,7 @@ import {
   Person,
   Phone,
   LocationOn,
+  RateReview,
 } from "@mui/icons-material";
 import { useAuthStore } from "../../store/authStore";
 
@@ -33,21 +37,6 @@ export default function OrdersDetails() {
   const navigate = useNavigate();
   const { user, supplierProfile, designerProfile, loadUserProfile } =
     useAuthStore(); // Get current user info and profiles
-  const [payLoading, setPayLoading] = useState(false);
-  const [payError, setPayError] = useState<string | null>(null);
-  const handlePayWithWallet = async () => {
-    setPayLoading(true);
-    setPayError(null);
-    try {
-      // Với logic idempotency: chuyển thẳng về trang checkout tiêu chuẩn
-      // Trang CheckoutTailwind sẽ dùng orderId để load đơn và thanh toán bằng ví
-      navigate(`/checkout?orderId=${data.orderId}`);
-    } catch (e: any) {
-      setPayError(e?.message || "Không thể chuyển đến trang thanh toán");
-    } finally {
-      setPayLoading(false);
-    }
-  };
   const { orderId } = useParams();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -59,6 +48,15 @@ export default function OrdersDetails() {
     useState<ShipmentTrackingResponse | null>(null);
   const [trackingLoading, setTrackingLoading] = useState(false);
   const [trackingError, setTrackingError] = useState<string | null>(null);
+
+  // Review dialog states
+  const [showReviewDialog, setShowReviewDialog] = useState(false);
+  const [reviewRating, setReviewRating] = useState<number>(5);
+  const [reviewComment, setReviewComment] = useState<string>("");
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [hasReviewed, setHasReviewed] = useState(false);
+  const [isSellerOrder, setIsSellerOrder] = useState(false); // Track if this order belongs to seller
 
   useEffect(() => {
     const load = async () => {
@@ -80,10 +78,11 @@ export default function OrdersDetails() {
           const supplierOrders = await ordersService.getOrdersBySeller(
             supplierId
           );
-          const isSellerOrder = supplierOrders.some(
+          const isSupplierSellerOrder = supplierOrders.some(
             (o) => o.orderId === Number(orderId)
           );
-          if (isSellerOrder) {
+          setIsSellerOrder(isSupplierSellerOrder); // Track seller status
+          if (isSupplierSellerOrder) {
             const specificOrder = supplierOrders.find(
               (o) => o.orderId === Number(orderId)
             );
@@ -121,10 +120,11 @@ export default function OrdersDetails() {
           const designerOrders = await ordersService.getOrdersByDesigner(
             designerId
           );
-          const isSellerOrder = designerOrders.some(
+          const isDesignerSellerOrder = designerOrders.some(
             (o) => o.orderId === Number(orderId)
           );
-          if (isSellerOrder) {
+          setIsSellerOrder(isDesignerSellerOrder); // Track seller status
+          if (isDesignerSellerOrder) {
             const specificOrder = designerOrders.find(
               (o) => o.orderId === Number(orderId)
             );
@@ -149,6 +149,7 @@ export default function OrdersDetails() {
 
         // Default (customer/admin): load as owner
         {
+          setIsSellerOrder(false); // Not a seller for this order
           const res = await ordersService.getById(Number(orderId));
           const orderData = (res as any)?.result || res;
           setData(orderData);
@@ -195,6 +196,64 @@ export default function OrdersDetails() {
         setShowTrackingDialog(true);
         setTrackingLoading(false);
       }
+    }
+  };
+
+  // Handle review submission
+  const handleReviewSubmit = async () => {
+    if (!user?.userId) {
+      setReviewError("Bạn cần đăng nhập để đánh giá");
+      return;
+    }
+
+    if (!reviewComment.trim()) {
+      setReviewError("Vui lòng nhập nội dung đánh giá");
+      return;
+    }
+
+    if (reviewComment.length > 1000) {
+      setReviewError("Nội dung đánh giá không được vượt quá 1000 ký tự");
+      return;
+    }
+
+    setReviewLoading(true);
+    setReviewError(null);
+
+    try {
+      // For each product in order details, create a review
+      for (const detail of details) {
+        const itemType = String(detail.type || "").toLowerCase();
+
+        if (itemType === "product" && detail.productId) {
+          await reviewService.createReview({
+            productId: detail.productId,
+            comment: reviewComment,
+            ratingScore: reviewRating,
+          });
+        } else if (itemType === "material" && detail.materialId) {
+          await reviewService.createReview({
+            materialId: detail.materialId,
+            comment: reviewComment,
+            ratingScore: reviewRating,
+          });
+        }
+      }
+
+      // Success - close dialog and reset form
+      setShowReviewDialog(false);
+      setReviewComment("");
+      setReviewRating(5);
+      setHasReviewed(true); // Mark as reviewed to disable the button
+      alert("Cảm ơn bạn đã đánh giá!");
+    } catch (e: any) {
+      console.error("Review error:", e);
+      setReviewError(
+        e?.response?.data?.errorMessage ||
+        e?.message ||
+        "Không thể gửi đánh giá. Vui lòng thử lại."
+      );
+    } finally {
+      setReviewLoading(false);
     }
   };
 
@@ -482,17 +541,22 @@ export default function OrdersDetails() {
           <div className="text-lg font-semibold text-green-700">
             Tổng cộng: {total.toLocaleString("vi-VN")} ₫
           </div>
-          {String(data.paymentStatus).toLowerCase() !== "paid" &&
-            String(data.paymentStatus).toLowerCase() !== "success" && (
+          {/* Review button - only show when order is delivered and user is NOT the seller of this order */}
+          {String(data.fulfillmentStatus || "").toLowerCase() === "delivered" &&
+            !isSellerOrder && (
               <button
-                className="mt-4 px-4 py-2 bg-green-600 text-white rounded font-semibold hover:bg-green-700 disabled:opacity-60"
-                onClick={handlePayWithWallet}
-                disabled={payLoading}
+                onClick={() => setShowReviewDialog(true)}
+                disabled={hasReviewed}
+                className={`mt-4 px-4 py-2 rounded font-semibold flex items-center gap-2 ml-auto ${
+                  hasReviewed
+                    ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                }`}
               >
-                {payLoading ? "Đang chuyển..." : "Thanh toán bằng ví"}
+                <RateReview fontSize="small" />
+                {hasReviewed ? "Đã đánh giá" : "Đánh Giá"}
               </button>
             )}
-          {payError && <div className="text-red-600 mt-2">{payError}</div>}
         </div>
       </div>
 
@@ -912,6 +976,90 @@ export default function OrdersDetails() {
         <DialogActions>
           <Button onClick={() => setShowTrackingDialog(false)} color="primary">
             Đã hiểu
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Review Dialog */}
+      <Dialog
+        open={showReviewDialog}
+        onClose={() => setShowReviewDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <RateReview sx={{ color: "#3b82f6" }} />
+          Đánh giá đơn hàng #{data.orderId}
+        </DialogTitle>
+        <DialogContent>
+          <div className="space-y-4 py-4">
+            <div>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Chất lượng sản phẩm/dịch vụ
+              </Typography>
+              <Rating
+                name="rating"
+                value={reviewRating}
+                onChange={(_, newValue) => {
+                  setReviewRating(newValue || 1);
+                }}
+                size="large"
+                sx={{ fontSize: "2.5rem" }}
+              />
+              <Typography variant="caption" color="text.secondary">
+                {reviewRating === 5 && "Tuyệt vời"}
+                {reviewRating === 4 && "Rất tốt"}
+                {reviewRating === 3 && "Tốt"}
+                {reviewRating === 2 && "Trung bình"}
+                {reviewRating === 1 && "Kém"}
+              </Typography>
+            </div>
+
+            <div>
+              <TextField
+                label="Nội dung đánh giá"
+                multiline
+                rows={4}
+                fullWidth
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+                placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm/dịch vụ..."
+                helperText={`${reviewComment.length}/1000 ký tự`}
+                inputProps={{ maxLength: 1000 }}
+              />
+            </div>
+
+            {reviewError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <Typography variant="body2" color="error">
+                  {reviewError}
+                </Typography>
+              </div>
+            )}
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <Typography variant="caption" color="text.secondary">
+                💡 Đánh giá của bạn sẽ được áp dụng cho tất cả sản phẩm trong đơn hàng này
+              </Typography>
+            </div>
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setShowReviewDialog(false)}
+            color="inherit"
+            disabled={reviewLoading}
+          >
+            Hủy
+          </Button>
+          <Button
+            onClick={handleReviewSubmit}
+            variant="contained"
+            color="primary"
+            disabled={reviewLoading}
+            startIcon={<RateReview />}
+          >
+            {reviewLoading ? "Đang gửi..." : "Gửi đánh giá"}
           </Button>
         </DialogActions>
       </Dialog>
