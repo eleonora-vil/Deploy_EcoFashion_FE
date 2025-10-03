@@ -108,7 +108,7 @@ class MaterialService {
 
   // Admin: get all materials regardless of approval/availability
   async getAllMaterialsAdmin(): Promise<MaterialDetailDto[]> {
-    const response = await apiClient.get<any>(`/material/admin/all`);
+    const response = await apiClient.get<any>(`/Material/admin/all`);
     const result = handleApiResponse<MaterialDetailDto[] | { success: boolean; result: MaterialDetailDto[] }>(response);
     const data = Array.isArray(result) ? result : (result as any).result;
     return data.map((item) => materialDetailDtoSchema.parse(item));
