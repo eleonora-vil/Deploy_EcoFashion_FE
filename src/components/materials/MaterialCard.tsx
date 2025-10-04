@@ -454,18 +454,16 @@ const MaterialCard: React.FC<MaterialCardProps> = ({
                 {material.name || "Unnamed Material"}
               </Typography>
               {/* Rating */}
-              {material.supplier?.rating && (
-                <Box display="flex" alignItems="center">
-                  <Rating
-                    value={material.supplier.rating}
-                    readOnly
-                    size="small"
-                  />
-                  <Typography variant="body2" ml={1}>
-                    ({material.supplier.reviewCount || 0})
-                  </Typography>
-                </Box>
-              )}
+              <Box display="flex" alignItems="center">
+                <Rating
+                  value={material.supplier?.rating || 5}
+                  readOnly
+                  size="small"
+                />
+                <Typography variant="body2" ml={1}>
+                  ({material.supplier?.reviewCount || 0})
+                </Typography>
+              </Box>
               {/* Price */}
               <Typography
                 variant="h5"
