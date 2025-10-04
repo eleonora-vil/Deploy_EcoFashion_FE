@@ -22,6 +22,7 @@ import { toast } from "react-toastify";
 import walletService, {
   WalletTransaction,
 } from "../../services/api/walletService";
+import AllTransactionsModal from "./AllTransactionsModal";
 
 // Helper component để hiển thị transaction status
 const TransactionStatusBadge: React.FC<{ status: string }> = ({ status }) => {
@@ -419,6 +420,8 @@ const WalletDashboardTailwind: React.FC = () => {
   const [showBalance, setShowBalance] = useState(true);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawalModal, setShowwithdrawalModal] = useState(false);
+  const [showAllTransactionsModal, setShowAllTransactionsModal] =
+    useState(false);
 
   useEffect(() => {
     const redirectUrl = localStorage.getItem("walletRedirect");
@@ -624,7 +627,10 @@ const WalletDashboardTailwind: React.FC = () => {
           <h2 className="text-xl font-semibold text-gray-900">
             Giao dịch gần đây
           </h2>
-          <button className="text-blue-600 hover:text-blue-700 font-medium">
+          <button
+            onClick={() => setShowAllTransactionsModal(true)}
+            className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+          >
             Xem tất cả
           </button>
         </div>
@@ -638,8 +644,11 @@ const WalletDashboardTailwind: React.FC = () => {
           <div className="space-y-3">
             {/* Tách transactions thành order-related và non-order */}
             {(() => {
+              // Chỉ lấy 5 giao dịch gần nhất
+              const recentFive = recentTransactions.slice(0, 5);
+
               // Cải thiện logic phân loại transactions
-              const orderTransactions = recentTransactions.filter(
+              const orderTransactions = recentFive.filter(
                 (t: any) =>
                   // Giao dịch có orderId hoặc orderGroupId trực tiếp
                   t.orderId ||
@@ -651,7 +660,7 @@ const WalletDashboardTailwind: React.FC = () => {
                     (t.description?.includes("ĐH") ||
                       t.description?.includes("đơn")))
               );
-              const nonOrderTransactions = recentTransactions.filter(
+              const nonOrderTransactions = recentFive.filter(
                 (t: any) =>
                   // Loại trừ các giao dịch đã được phân vào orderTransactions
                   !orderTransactions.includes(t)
@@ -755,6 +764,14 @@ const WalletDashboardTailwind: React.FC = () => {
         onClose={() => setShowwithdrawalModal(false)}
         onWithdrawal={handleWithdrawal}
         isLoading={isWithdrawalLoading}
+      />
+
+      {/* All Transactions Modal */}
+      <AllTransactionsModal
+        isOpen={showAllTransactionsModal}
+        onClose={() => setShowAllTransactionsModal(false)}
+        transactions={recentTransactions}
+        onOrderClick={handleOrderClick}
       />
     </div>
   );

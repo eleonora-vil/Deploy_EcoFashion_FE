@@ -214,16 +214,16 @@ const MaterialDetailModal: React.FC<Props> = ({ open, materialId, onClose }) => 
                 </div>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm table-fixed">
+                <table className="w-full text-sm">
                   <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
-                      <th className="text-left p-3 pr-8 min-w-[230px]">Tiêu chí</th>
-                      <th className="text-left p-3 min-w-[90px]">Thực tế</th>
-                      <th className="text-left p-3 min-w-[90px]">Chuẩn</th>
-                      <th className="text-left p-3 min-w-[80px]">Đơn vị</th>
-                      <th className="text-left p-3 min-w-[110px]">Cải thiện</th>
-                      <th className="text-left p-3 min-w-[70px]">Điểm</th>
-                      <th className="text-left p-3 min-w-[120px]">Đánh giá</th>
+                      <th className="text-left p-2 md:p-3">Tiêu chí</th>
+                      <th className="text-left p-2 md:p-3">Thực tế</th>
+                      <th className="text-left p-2 md:p-3">Chuẩn</th>
+                      <th className="text-left p-2 md:p-3">Đơn vị</th>
+                      <th className="text-left p-2 md:p-3">Cải thiện</th>
+                      <th className="text-left p-2 md:p-3">Điểm</th>
+                      <th className="text-left p-2 md:p-3">Đánh giá</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -240,11 +240,13 @@ const MaterialDetailModal: React.FC<Props> = ({ open, materialId, onClose }) => 
                       }
                       return (
                         <tr key={idx} className="border-t border-gray-100 dark:border-gray-800">
-                          <td className="p-3 pr-8 font-bold flex items-center gap-2 min-w-[230px]">
-                            {criterionIcon(c.criterionName)}
-                            <span>{c.criterionName}</span>
+                          <td className="p-2 md:p-3 font-bold">
+                            <div className="flex items-center gap-2">
+                              {criterionIcon(c.criterionName)}
+                              <span className="whitespace-nowrap">{c.criterionName}</span>
+                            </div>
                           </td>
-                          <td className="p-3 min-w-[90px]">
+                          <td className="p-2 md:p-3">
                             {c.criterionName === 'Organic Certification'
                               ? <div className="flex items-center gap-2">
                                 <span>{c.actualValue === 100 ? '100' : '0'}</span>
@@ -254,7 +256,7 @@ const MaterialDetailModal: React.FC<Props> = ({ open, materialId, onClose }) => 
                               </div>
                               : <>{c.actualValue ?? '—'}</>}
                           </td>
-                          <td className="p-3 min-w-[90px]">
+                          <td className="p-2 md:p-3">
                             {c.criterionName === 'Organic Certification'
                               ? <div className="flex items-center gap-2">
                                 <span>{c.benchmarkValue ?? '100'}</span>
@@ -262,8 +264,8 @@ const MaterialDetailModal: React.FC<Props> = ({ open, materialId, onClose }) => 
                               </div>
                               : <>{c.benchmarkValue ?? '—'}</>}
                           </td>
-                          <td className="p-3 min-w-[80px]">{c.unit || '—'}</td>
-                          <td className={`p-3 min-w-[110px] ${(() => {
+                          <td className="p-2 md:p-3">{c.unit || '—'}</td>
+                          <td className={`p-2 md:p-3 ${(() => {
                             if (improvement === 'Không áp dụng' || improvement === '—') return 'text-gray-400';
                             if (improvement === 'Đã đạt') return 'text-green-600 font-semibold';
                             if (improvement === 'Cần chứng chỉ') return 'text-red-600 font-semibold';
@@ -277,7 +279,7 @@ const MaterialDetailModal: React.FC<Props> = ({ open, materialId, onClose }) => 
                           })()}`}>
                             {improvement}
                           </td>
-                          <td className={`p-3 min-w-[70px] ${(() => {
+                          <td className={`p-2 md:p-3 ${(() => {
                             if (c.score === undefined || c.score === null) return 'text-gray-400';
                             const score = typeof c.score === 'string' ? parseFloat(c.score) : c.score;
                             if (!isNaN(score)) {
@@ -288,9 +290,15 @@ const MaterialDetailModal: React.FC<Props> = ({ open, materialId, onClose }) => 
                             }
                             return '';
                           })()}`}>
-                            {c.score ?? '—'}
+                            {c.score !== undefined && c.score !== null
+                              ? (typeof c.score === 'string' ? parseFloat(c.score).toFixed(2) : c.score.toFixed(2))
+                              : '—'}
                           </td>
-                          <td className={`p-3 min-w-[120px] font-semibold flex items-center gap-1 ${getStatusColorBenchmark(c.status)}`}>{statusIcon(c.status)} {c.status}</td>
+                          <td className={`p-2 md:p-3 font-semibold ${getStatusColorBenchmark(c.status)}`}>
+                            <div className="flex items-center gap-1 whitespace-nowrap">
+                              {statusIcon(c.status)} {c.status}
+                            </div>
+                          </td>
                         </tr>
                       );
                     })}
